@@ -1,0 +1,10 @@
+/node_modules/
+/dist/
+*.tsbuildinfo
+/.workbuddy/
+/art/dev.log
+/art/verify_*.png
+/processed_image_*.png
+.env
+.env.*
+!.env.example

@@ -1,0 +1,2256 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-11-11T08:34:27.982Z",
+  "assets": [
+    {
+      "id": "hero_guard",
+      "path": "assets/sprites/heroes/hero_guard.png",
+      "kind": "character",
+      "sourcePath": "art/source/hero_guard.png",
+      "sourceSize": null,
+      "frameSize": [
+        256,
+        256
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.875
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-hero_guard",
+      "promptVersion": 1,
+      "approvalStatus": "approved"
+    },
+    {
+      "id": "hero_archer",
+      "path": "assets/sprites/heroes/hero_archer.png",
+      "kind": "character",
+      "sourcePath": "art/source/hero_archer.png",
+      "sourceSize": null,
+      "frameSize": [
+        256,
+        256
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.875
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-hero_archer",
+      "promptVersion": 1,
+      "approvalStatus": "approved"
+    },
+    {
+      "id": "hero_fire_mage",
+      "path": "assets/sprites/heroes/hero_fire_mage.png",
+      "kind": "character",
+      "sourcePath": "art/source/hero_fire_mage.png",
+      "sourceSize": null,
+      "frameSize": [
+        256,
+        256
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.875
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-hero_fire_mage",
+      "promptVersion": 1,
+      "approvalStatus": "approved"
+    },
+    {
+      "id": "hero_healer",
+      "path": "assets/sprites/heroes/hero_healer.png",
+      "kind": "character",
+      "sourcePath": "art/source/hero_healer.png",
+      "sourceSize": null,
+      "frameSize": [
+        256,
+        256
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.875
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-hero_healer",
+      "promptVersion": 1,
+      "approvalStatus": "approved"
+    },
+    {
+      "id": "hero_assassin",
+      "path": "assets/sprites/heroes/hero_assassin.png",
+      "kind": "character",
+      "sourcePath": "art/source/hero_assassin.png",
+      "sourceSize": null,
+      "frameSize": [
+        256,
+        256
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.875
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-hero_assassin",
+      "promptVersion": 1,
+      "approvalStatus": "approved"
+    },
+    {
+      "id": "hero_engineer",
+      "path": "assets/sprites/heroes/hero_engineer.png",
+      "kind": "character",
+      "sourcePath": "art/source/hero_engineer.png",
+      "sourceSize": null,
+      "frameSize": [
+        256,
+        256
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.875
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-hero_engineer",
+      "promptVersion": 1,
+      "approvalStatus": "approved"
+    },
+    {
+      "id": "hero_ice_mage",
+      "path": "assets/sprites/heroes/hero_ice_mage.png",
+      "kind": "character",
+      "sourcePath": "art/source/hero_ice_mage.png",
+      "sourceSize": null,
+      "frameSize": [
+        256,
+        256
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.875
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-hero_ice_mage",
+      "promptVersion": 1,
+      "approvalStatus": "approved"
+    },
+    {
+      "id": "hero_banner",
+      "path": "assets/sprites/heroes/hero_banner.png",
+      "kind": "character",
+      "sourcePath": "art/source/hero_banner.png",
+      "sourceSize": null,
+      "frameSize": [
+        256,
+        256
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.875
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-hero_banner",
+      "promptVersion": 1,
+      "approvalStatus": "approved"
+    },
+    {
+      "id": "unit_summon_squire",
+      "path": "assets/sprites/units/unit_summon_squire.png",
+      "kind": "character",
+      "sourcePath": "art/source/unit_summon_squire.png",
+      "sourceSize": null,
+      "frameSize": [
+        256,
+        256
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.875
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-unit_summon_squire",
+      "promptVersion": 1,
+      "approvalStatus": "approved"
+    },
+    {
+      "id": "unit_copper_turret",
+      "path": "assets/sprites/units/unit_copper_turret.png",
+      "kind": "character",
+      "sourcePath": "art/source/unit_copper_turret.png",
+      "sourceSize": null,
+      "frameSize": [
+        256,
+        256
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.875
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-unit_copper_turret",
+      "promptVersion": 1,
+      "approvalStatus": "approved"
+    },
+    {
+      "id": "enemy_moss_blob",
+      "path": "assets/sprites/enemies/enemy_moss_blob.png",
+      "kind": "character",
+      "sourcePath": "art/source/enemy_moss_blob.png",
+      "sourceSize": null,
+      "frameSize": [
+        256,
+        256
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.875
+      ],
+      "facing": "left",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-enemy_moss_blob",
+      "promptVersion": 1,
+      "approvalStatus": "approved"
+    },
+    {
+      "id": "enemy_cave_bat",
+      "path": "assets/sprites/enemies/enemy_cave_bat.png",
+      "kind": "character",
+      "sourcePath": "art/source/enemy_cave_bat.png",
+      "sourceSize": null,
+      "frameSize": [
+        256,
+        256
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.875
+      ],
+      "facing": "left",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-enemy_cave_bat",
+      "promptVersion": 1,
+      "approvalStatus": "approved"
+    },
+    {
+      "id": "enemy_iron_beetle",
+      "path": "assets/sprites/enemies/enemy_iron_beetle.png",
+      "kind": "character",
+      "sourcePath": "art/source/enemy_iron_beetle.png",
+      "sourceSize": null,
+      "frameSize": [
+        256,
+        256
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.875
+      ],
+      "facing": "left",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-enemy_iron_beetle",
+      "promptVersion": 1,
+      "approvalStatus": "approved"
+    },
+    {
+      "id": "enemy_bone_soldier",
+      "path": "assets/sprites/enemies/enemy_bone_soldier.png",
+      "kind": "character",
+      "sourcePath": "art/source/enemy_bone_soldier.png",
+      "sourceSize": null,
+      "frameSize": [
+        256,
+        256
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.875
+      ],
+      "facing": "left",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-enemy_bone_soldier",
+      "promptVersion": 1,
+      "approvalStatus": "approved"
+    },
+    {
+      "id": "enemy_miner_golem",
+      "path": "assets/sprites/enemies/enemy_miner_golem.png",
+      "kind": "character",
+      "sourcePath": "art/source/enemy_miner_golem.png",
+      "sourceSize": null,
+      "frameSize": [
+        256,
+        256
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.875
+      ],
+      "facing": "left",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-enemy_miner_golem",
+      "promptVersion": 1,
+      "approvalStatus": "approved"
+    },
+    {
+      "id": "enemy_fire_lizard",
+      "path": "assets/sprites/enemies/enemy_fire_lizard.png",
+      "kind": "character",
+      "sourcePath": "art/source/enemy_fire_lizard.png",
+      "sourceSize": null,
+      "frameSize": [
+        256,
+        256
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.875
+      ],
+      "facing": "left",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-enemy_fire_lizard",
+      "promptVersion": 1,
+      "approvalStatus": "approved"
+    },
+    {
+      "id": "enemy_ash_sprite",
+      "path": "assets/sprites/enemies/enemy_ash_sprite.png",
+      "kind": "character",
+      "sourcePath": "art/source/enemy_ash_sprite.png",
+      "sourceSize": null,
+      "frameSize": [
+        256,
+        256
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.875
+      ],
+      "facing": "left",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-enemy_ash_sprite",
+      "promptVersion": 1,
+      "approvalStatus": "approved"
+    },
+    {
+      "id": "enemy_charred_guard",
+      "path": "assets/sprites/enemies/enemy_charred_guard.png",
+      "kind": "character",
+      "sourcePath": "art/source/enemy_charred_guard.png",
+      "sourceSize": null,
+      "frameSize": [
+        256,
+        256
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.875
+      ],
+      "facing": "left",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-enemy_charred_guard",
+      "promptVersion": 1,
+      "approvalStatus": "approved"
+    },
+    {
+      "id": "enemy_frost_wolf",
+      "path": "assets/sprites/enemies/enemy_frost_wolf.png",
+      "kind": "character",
+      "sourcePath": "art/source/enemy_frost_wolf.png",
+      "sourceSize": null,
+      "frameSize": [
+        256,
+        256
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.875
+      ],
+      "facing": "left",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-enemy_frost_wolf",
+      "promptVersion": 1,
+      "approvalStatus": "approved"
+    },
+    {
+      "id": "enemy_snow_wisp",
+      "path": "assets/sprites/enemies/enemy_snow_wisp.png",
+      "kind": "character",
+      "sourcePath": "art/source/enemy_snow_wisp.png",
+      "sourceSize": null,
+      "frameSize": [
+        256,
+        256
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.875
+      ],
+      "facing": "left",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-enemy_snow_wisp",
+      "promptVersion": 1,
+      "approvalStatus": "approved"
+    },
+    {
+      "id": "enemy_ice_sentinel",
+      "path": "assets/sprites/enemies/enemy_ice_sentinel.png",
+      "kind": "character",
+      "sourcePath": "art/source/enemy_ice_sentinel.png",
+      "sourceSize": null,
+      "frameSize": [
+        256,
+        256
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.875
+      ],
+      "facing": "left",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-enemy_ice_sentinel",
+      "promptVersion": 1,
+      "approvalStatus": "approved"
+    },
+    {
+      "id": "enemy_crystal_spider",
+      "path": "assets/sprites/enemies/enemy_crystal_spider.png",
+      "kind": "character",
+      "sourcePath": "art/source/enemy_crystal_spider.png",
+      "sourceSize": null,
+      "frameSize": [
+        256,
+        256
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.875
+      ],
+      "facing": "left",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-enemy_crystal_spider",
+      "promptVersion": 1,
+      "approvalStatus": "approved"
+    },
+    {
+      "id": "boss_gate_colossus",
+      "path": "assets/sprites/bosses/boss_gate_colossus.png",
+      "kind": "character",
+      "sourcePath": "art/source/boss_gate_colossus.png",
+      "sourceSize": null,
+      "frameSize": [
+        512,
+        512
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.875
+      ],
+      "facing": "left",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-boss_gate_colossus",
+      "promptVersion": 1,
+      "approvalStatus": "approved"
+    },
+    {
+      "id": "boss_furnace_golem",
+      "path": "assets/sprites/bosses/boss_furnace_golem.png",
+      "kind": "character",
+      "sourcePath": "art/source/boss_furnace_golem.png",
+      "sourceSize": null,
+      "frameSize": [
+        512,
+        512
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.875
+      ],
+      "facing": "left",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-boss_furnace_golem",
+      "promptVersion": 1,
+      "approvalStatus": "approved"
+    },
+    {
+      "id": "boss_prism_warden",
+      "path": "assets/sprites/bosses/boss_prism_warden.png",
+      "kind": "character",
+      "sourcePath": "art/source/boss_prism_warden.png",
+      "sourceSize": null,
+      "frameSize": [
+        512,
+        512
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.875
+      ],
+      "facing": "left",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-boss_prism_warden",
+      "promptVersion": 1,
+      "approvalStatus": "approved"
+    },
+    {
+      "id": "bg_tower_ruins",
+      "path": "assets/backgrounds/bg_tower_ruins.png",
+      "kind": "background",
+      "sourcePath": "art/source/bg_tower_ruins.png",
+      "sourceSize": null,
+      "frameSize": [
+        128,
+        128
+      ],
+      "displaySize": null,
+      "hasAlpha": false,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-bg_tower_ruins",
+      "promptVersion": 1,
+      "approvalStatus": "approved"
+    },
+    {
+      "id": "bg_tower_forge",
+      "path": "assets/backgrounds/bg_tower_forge.png",
+      "kind": "background",
+      "sourcePath": "art/source/bg_tower_forge.png",
+      "sourceSize": null,
+      "frameSize": [
+        128,
+        128
+      ],
+      "displaySize": null,
+      "hasAlpha": false,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-bg_tower_forge",
+      "promptVersion": 1,
+      "approvalStatus": "approved"
+    },
+    {
+      "id": "bg_tower_frost",
+      "path": "assets/backgrounds/bg_tower_frost.png",
+      "kind": "background",
+      "sourcePath": "art/source/bg_tower_frost.png",
+      "sourceSize": null,
+      "frameSize": [
+        128,
+        128
+      ],
+      "displaySize": null,
+      "hasAlpha": false,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-bg_tower_frost",
+      "promptVersion": 1,
+      "approvalStatus": "approved"
+    },
+    {
+      "id": "prop_platform",
+      "path": "assets/props/prop_platform.png",
+      "kind": "prop",
+      "sourcePath": null,
+      "sourceSize": null,
+      "frameSize": [
+        128,
+        128
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-prop_platform",
+      "promptVersion": 1,
+      "approvalStatus": "pending"
+    },
+    {
+      "id": "prop_door_ruins",
+      "path": "assets/props/prop_door_ruins.png",
+      "kind": "prop",
+      "sourcePath": null,
+      "sourceSize": null,
+      "frameSize": [
+        128,
+        128
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-prop_door_ruins",
+      "promptVersion": 1,
+      "approvalStatus": "pending"
+    },
+    {
+      "id": "prop_door_forge",
+      "path": "assets/props/prop_door_forge.png",
+      "kind": "prop",
+      "sourcePath": null,
+      "sourceSize": null,
+      "frameSize": [
+        128,
+        128
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-prop_door_forge",
+      "promptVersion": 1,
+      "approvalStatus": "pending"
+    },
+    {
+      "id": "prop_door_frost",
+      "path": "assets/props/prop_door_frost.png",
+      "kind": "prop",
+      "sourcePath": null,
+      "sourceSize": null,
+      "frameSize": [
+        128,
+        128
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-prop_door_frost",
+      "promptVersion": 1,
+      "approvalStatus": "pending"
+    },
+    {
+      "id": "prop_stairs",
+      "path": "assets/props/prop_stairs.png",
+      "kind": "prop",
+      "sourcePath": null,
+      "sourceSize": null,
+      "frameSize": [
+        128,
+        128
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-prop_stairs",
+      "promptVersion": 1,
+      "approvalStatus": "pending"
+    },
+    {
+      "id": "gem_attack",
+      "path": "assets/icons/gems/gem_attack.png",
+      "kind": "icon",
+      "sourcePath": "art/source/gem_attack.png",
+      "sourceSize": null,
+      "frameSize": [
+        128,
+        128
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-gem_attack",
+      "promptVersion": 1,
+      "approvalStatus": "approved"
+    },
+    {
+      "id": "gem_health",
+      "path": "assets/icons/gems/gem_health.png",
+      "kind": "icon",
+      "sourcePath": "art/source/gem_health.png",
+      "sourceSize": null,
+      "frameSize": [
+        128,
+        128
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-gem_health",
+      "promptVersion": 1,
+      "approvalStatus": "approved"
+    },
+    {
+      "id": "gem_defense",
+      "path": "assets/icons/gems/gem_defense.png",
+      "kind": "icon",
+      "sourcePath": null,
+      "sourceSize": null,
+      "frameSize": [
+        128,
+        128
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-gem_defense",
+      "promptVersion": 1,
+      "approvalStatus": "pending"
+    },
+    {
+      "id": "gem_haste",
+      "path": "assets/icons/gems/gem_haste.png",
+      "kind": "icon",
+      "sourcePath": null,
+      "sourceSize": null,
+      "frameSize": [
+        128,
+        128
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-gem_haste",
+      "promptVersion": 1,
+      "approvalStatus": "pending"
+    },
+    {
+      "id": "gem_critical",
+      "path": "assets/icons/gems/gem_critical.png",
+      "kind": "icon",
+      "sourcePath": null,
+      "sourceSize": null,
+      "frameSize": [
+        128,
+        128
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-gem_critical",
+      "promptVersion": 1,
+      "approvalStatus": "pending"
+    },
+    {
+      "id": "gem_gold",
+      "path": "assets/icons/gems/gem_gold.png",
+      "kind": "icon",
+      "sourcePath": null,
+      "sourceSize": null,
+      "frameSize": [
+        128,
+        128
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-gem_gold",
+      "promptVersion": 1,
+      "approvalStatus": "pending"
+    },
+    {
+      "id": "currency_gold",
+      "path": "assets/icons/items/currency_gold.png",
+      "kind": "icon",
+      "sourcePath": null,
+      "sourceSize": null,
+      "frameSize": [
+        128,
+        128
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-currency_gold",
+      "promptVersion": 1,
+      "approvalStatus": "pending"
+    },
+    {
+      "id": "currency_crystal",
+      "path": "assets/icons/items/currency_crystal.png",
+      "kind": "icon",
+      "sourcePath": null,
+      "sourceSize": null,
+      "frameSize": [
+        128,
+        128
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-currency_crystal",
+      "promptVersion": 1,
+      "approvalStatus": "pending"
+    },
+    {
+      "id": "currency_recruit_ticket",
+      "path": "assets/icons/items/currency_recruit_ticket.png",
+      "kind": "icon",
+      "sourcePath": null,
+      "sourceSize": null,
+      "frameSize": [
+        128,
+        128
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-currency_recruit_ticket",
+      "promptVersion": 1,
+      "approvalStatus": "pending"
+    },
+    {
+      "id": "currency_soul_shard",
+      "path": "assets/icons/items/currency_soul_shard.png",
+      "kind": "icon",
+      "sourcePath": null,
+      "sourceSize": null,
+      "frameSize": [
+        128,
+        128
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-currency_soul_shard",
+      "promptVersion": 1,
+      "approvalStatus": "pending"
+    },
+    {
+      "id": "currency_upgrade_dust",
+      "path": "assets/icons/items/currency_upgrade_dust.png",
+      "kind": "icon",
+      "sourcePath": null,
+      "sourceSize": null,
+      "frameSize": [
+        128,
+        128
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-currency_upgrade_dust",
+      "promptVersion": 1,
+      "approvalStatus": "pending"
+    },
+    {
+      "id": "item_sword",
+      "path": "assets/icons/items/item_sword.png",
+      "kind": "icon",
+      "sourcePath": null,
+      "sourceSize": null,
+      "frameSize": [
+        128,
+        128
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-item_sword",
+      "promptVersion": 1,
+      "approvalStatus": "pending"
+    },
+    {
+      "id": "item_bow",
+      "path": "assets/icons/items/item_bow.png",
+      "kind": "icon",
+      "sourcePath": null,
+      "sourceSize": null,
+      "frameSize": [
+        128,
+        128
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-item_bow",
+      "promptVersion": 1,
+      "approvalStatus": "pending"
+    },
+    {
+      "id": "item_staff",
+      "path": "assets/icons/items/item_staff.png",
+      "kind": "icon",
+      "sourcePath": null,
+      "sourceSize": null,
+      "frameSize": [
+        128,
+        128
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-item_staff",
+      "promptVersion": 1,
+      "approvalStatus": "pending"
+    },
+    {
+      "id": "item_daggers",
+      "path": "assets/icons/items/item_daggers.png",
+      "kind": "icon",
+      "sourcePath": null,
+      "sourceSize": null,
+      "frameSize": [
+        128,
+        128
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-item_daggers",
+      "promptVersion": 1,
+      "approvalStatus": "pending"
+    },
+    {
+      "id": "item_wrench",
+      "path": "assets/icons/items/item_wrench.png",
+      "kind": "icon",
+      "sourcePath": null,
+      "sourceSize": null,
+      "frameSize": [
+        128,
+        128
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-item_wrench",
+      "promptVersion": 1,
+      "approvalStatus": "pending"
+    },
+    {
+      "id": "item_banner",
+      "path": "assets/icons/items/item_banner.png",
+      "kind": "icon",
+      "sourcePath": null,
+      "sourceSize": null,
+      "frameSize": [
+        128,
+        128
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-item_banner",
+      "promptVersion": 1,
+      "approvalStatus": "pending"
+    },
+    {
+      "id": "item_armor",
+      "path": "assets/icons/items/item_armor.png",
+      "kind": "icon",
+      "sourcePath": null,
+      "sourceSize": null,
+      "frameSize": [
+        128,
+        128
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-item_armor",
+      "promptVersion": 1,
+      "approvalStatus": "pending"
+    },
+    {
+      "id": "item_robe",
+      "path": "assets/icons/items/item_robe.png",
+      "kind": "icon",
+      "sourcePath": null,
+      "sourceSize": null,
+      "frameSize": [
+        128,
+        128
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-item_robe",
+      "promptVersion": 1,
+      "approvalStatus": "pending"
+    },
+    {
+      "id": "item_amulet",
+      "path": "assets/icons/items/item_amulet.png",
+      "kind": "icon",
+      "sourcePath": null,
+      "sourceSize": null,
+      "frameSize": [
+        128,
+        128
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-item_amulet",
+      "promptVersion": 1,
+      "approvalStatus": "pending"
+    },
+    {
+      "id": "item_chest",
+      "path": "assets/icons/items/item_chest.png",
+      "kind": "icon",
+      "sourcePath": null,
+      "sourceSize": null,
+      "frameSize": [
+        128,
+        128
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-item_chest",
+      "promptVersion": 1,
+      "approvalStatus": "pending"
+    },
+    {
+      "id": "skill_guard",
+      "path": "assets/icons/skills/skill_guard.png",
+      "kind": "icon",
+      "sourcePath": null,
+      "sourceSize": null,
+      "frameSize": [
+        128,
+        128
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-skill_guard",
+      "promptVersion": 1,
+      "approvalStatus": "pending"
+    },
+    {
+      "id": "skill_archer",
+      "path": "assets/icons/skills/skill_archer.png",
+      "kind": "icon",
+      "sourcePath": null,
+      "sourceSize": null,
+      "frameSize": [
+        128,
+        128
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-skill_archer",
+      "promptVersion": 1,
+      "approvalStatus": "pending"
+    },
+    {
+      "id": "skill_fire_mage",
+      "path": "assets/icons/skills/skill_fire_mage.png",
+      "kind": "icon",
+      "sourcePath": null,
+      "sourceSize": null,
+      "frameSize": [
+        128,
+        128
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-skill_fire_mage",
+      "promptVersion": 1,
+      "approvalStatus": "pending"
+    },
+    {
+      "id": "skill_healer",
+      "path": "assets/icons/skills/skill_healer.png",
+      "kind": "icon",
+      "sourcePath": null,
+      "sourceSize": null,
+      "frameSize": [
+        128,
+        128
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-skill_healer",
+      "promptVersion": 1,
+      "approvalStatus": "pending"
+    },
+    {
+      "id": "skill_assassin",
+      "path": "assets/icons/skills/skill_assassin.png",
+      "kind": "icon",
+      "sourcePath": null,
+      "sourceSize": null,
+      "frameSize": [
+        128,
+        128
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-skill_assassin",
+      "promptVersion": 1,
+      "approvalStatus": "pending"
+    },
+    {
+      "id": "skill_engineer",
+      "path": "assets/icons/skills/skill_engineer.png",
+      "kind": "icon",
+      "sourcePath": null,
+      "sourceSize": null,
+      "frameSize": [
+        128,
+        128
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-skill_engineer",
+      "promptVersion": 1,
+      "approvalStatus": "pending"
+    },
+    {
+      "id": "skill_ice_mage",
+      "path": "assets/icons/skills/skill_ice_mage.png",
+      "kind": "icon",
+      "sourcePath": null,
+      "sourceSize": null,
+      "frameSize": [
+        128,
+        128
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-skill_ice_mage",
+      "promptVersion": 1,
+      "approvalStatus": "pending"
+    },
+    {
+      "id": "skill_banner",
+      "path": "assets/icons/skills/skill_banner.png",
+      "kind": "icon",
+      "sourcePath": null,
+      "sourceSize": null,
+      "frameSize": [
+        128,
+        128
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-skill_banner",
+      "promptVersion": 1,
+      "approvalStatus": "pending"
+    },
+    {
+      "id": "skill_battle_cry",
+      "path": "assets/icons/skills/skill_battle_cry.png",
+      "kind": "icon",
+      "sourcePath": null,
+      "sourceSize": null,
+      "frameSize": [
+        128,
+        128
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-skill_battle_cry",
+      "promptVersion": 1,
+      "approvalStatus": "pending"
+    },
+    {
+      "id": "skill_life_echo",
+      "path": "assets/icons/skills/skill_life_echo.png",
+      "kind": "icon",
+      "sourcePath": null,
+      "sourceSize": null,
+      "frameSize": [
+        128,
+        128
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-skill_life_echo",
+      "promptVersion": 1,
+      "approvalStatus": "pending"
+    },
+    {
+      "id": "skill_crystal_rain",
+      "path": "assets/icons/skills/skill_crystal_rain.png",
+      "kind": "icon",
+      "sourcePath": null,
+      "sourceSize": null,
+      "frameSize": [
+        128,
+        128
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-skill_crystal_rain",
+      "promptVersion": 1,
+      "approvalStatus": "pending"
+    },
+    {
+      "id": "fx_hit",
+      "path": "assets/vfx/fx_hit.png",
+      "kind": "vfx",
+      "sourcePath": null,
+      "sourceSize": null,
+      "frameSize": [
+        128,
+        128
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-fx_hit",
+      "promptVersion": 1,
+      "approvalStatus": "pending"
+    },
+    {
+      "id": "fx_slash",
+      "path": "assets/vfx/fx_slash.png",
+      "kind": "vfx",
+      "sourcePath": null,
+      "sourceSize": null,
+      "frameSize": [
+        128,
+        128
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-fx_slash",
+      "promptVersion": 1,
+      "approvalStatus": "pending"
+    },
+    {
+      "id": "fx_fireball",
+      "path": "assets/vfx/fx_fireball.png",
+      "kind": "vfx",
+      "sourcePath": null,
+      "sourceSize": null,
+      "frameSize": [
+        128,
+        128
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-fx_fireball",
+      "promptVersion": 1,
+      "approvalStatus": "pending"
+    },
+    {
+      "id": "fx_ice",
+      "path": "assets/vfx/fx_ice.png",
+      "kind": "vfx",
+      "sourcePath": null,
+      "sourceSize": null,
+      "frameSize": [
+        128,
+        128
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-fx_ice",
+      "promptVersion": 1,
+      "approvalStatus": "pending"
+    },
+    {
+      "id": "fx_heal",
+      "path": "assets/vfx/fx_heal.png",
+      "kind": "vfx",
+      "sourcePath": null,
+      "sourceSize": null,
+      "frameSize": [
+        128,
+        128
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-fx_heal",
+      "promptVersion": 1,
+      "approvalStatus": "pending"
+    },
+    {
+      "id": "fx_summon",
+      "path": "assets/vfx/fx_summon.png",
+      "kind": "vfx",
+      "sourcePath": null,
+      "sourceSize": null,
+      "frameSize": [
+        128,
+        128
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-fx_summon",
+      "promptVersion": 1,
+      "approvalStatus": "pending"
+    },
+    {
+      "id": "fx_gold",
+      "path": "assets/vfx/fx_gold.png",
+      "kind": "vfx",
+      "sourcePath": null,
+      "sourceSize": null,
+      "frameSize": [
+        128,
+        128
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-fx_gold",
+      "promptVersion": 1,
+      "approvalStatus": "pending"
+    },
+    {
+      "id": "fx_fusion",
+      "path": "assets/vfx/fx_fusion.png",
+      "kind": "vfx",
+      "sourcePath": null,
+      "sourceSize": null,
+      "frameSize": [
+        128,
+        128
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-fx_fusion",
+      "promptVersion": 1,
+      "approvalStatus": "pending"
+    },
+    {
+      "id": "fx_shield",
+      "path": "assets/vfx/fx_shield.png",
+      "kind": "vfx",
+      "sourcePath": null,
+      "sourceSize": null,
+      "frameSize": [
+        128,
+        128
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-fx_shield",
+      "promptVersion": 1,
+      "approvalStatus": "pending"
+    },
+    {
+      "id": "ui_panel_frame",
+      "path": "assets/ui/ui_panel_frame.png",
+      "kind": "ui",
+      "sourcePath": null,
+      "sourceSize": null,
+      "frameSize": [
+        128,
+        128
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-ui_panel_frame",
+      "promptVersion": 1,
+      "approvalStatus": "pending"
+    },
+    {
+      "id": "ui_crystal_corner",
+      "path": "assets/ui/ui_crystal_corner.png",
+      "kind": "ui",
+      "sourcePath": null,
+      "sourceSize": null,
+      "frameSize": [
+        128,
+        128
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-ui_crystal_corner",
+      "promptVersion": 1,
+      "approvalStatus": "pending"
+    },
+    {
+      "id": "app_mark",
+      "path": "assets/ui/app_mark.png",
+      "kind": "ui",
+      "sourcePath": null,
+      "sourceSize": null,
+      "frameSize": [
+        128,
+        128
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-app_mark",
+      "promptVersion": 1,
+      "approvalStatus": "pending"
+    },
+    {
+      "id": "screen_loading",
+      "path": "assets/screens/screen_loading.png",
+      "kind": "screen",
+      "sourcePath": null,
+      "sourceSize": null,
+      "frameSize": [
+        128,
+        128
+      ],
+      "displaySize": null,
+      "hasAlpha": false,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-screen_loading",
+      "promptVersion": 1,
+      "approvalStatus": "pending"
+    },
+    {
+      "id": "concept_main_screen",
+      "path": "assets/concepts/concept_main_screen.png",
+      "kind": "screen",
+      "sourcePath": null,
+      "sourceSize": null,
+      "frameSize": [
+        128,
+        128
+      ],
+      "displaySize": null,
+      "hasAlpha": false,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-concept_main_screen",
+      "promptVersion": 1,
+      "approvalStatus": "pending"
+    },
+    {
+      "id": "hero_guard_attack",
+      "path": "assets/sprites/heroes/hero_guard_attack.png",
+      "kind": "character",
+      "sourcePath": null,
+      "sourceSize": null,
+      "frameSize": [
+        256,
+        256
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.875
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-hero_guard_attack",
+      "promptVersion": 1,
+      "approvalStatus": "pending"
+    },
+    {
+      "id": "hero_archer_attack",
+      "path": "assets/sprites/heroes/hero_archer_attack.png",
+      "kind": "character",
+      "sourcePath": null,
+      "sourceSize": null,
+      "frameSize": [
+        256,
+        256
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.875
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-hero_archer_attack",
+      "promptVersion": 1,
+      "approvalStatus": "pending"
+    },
+    {
+      "id": "hero_fire_mage_attack",
+      "path": "assets/sprites/heroes/hero_fire_mage_attack.png",
+      "kind": "character",
+      "sourcePath": null,
+      "sourceSize": null,
+      "frameSize": [
+        256,
+        256
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.875
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-hero_fire_mage_attack",
+      "promptVersion": 1,
+      "approvalStatus": "pending"
+    },
+    {
+      "id": "hero_healer_attack",
+      "path": "assets/sprites/heroes/hero_healer_attack.png",
+      "kind": "character",
+      "sourcePath": null,
+      "sourceSize": null,
+      "frameSize": [
+        256,
+        256
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.875
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-hero_healer_attack",
+      "promptVersion": 1,
+      "approvalStatus": "pending"
+    },
+    {
+      "id": "hero_assassin_attack",
+      "path": "assets/sprites/heroes/hero_assassin_attack.png",
+      "kind": "character",
+      "sourcePath": null,
+      "sourceSize": null,
+      "frameSize": [
+        256,
+        256
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.875
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-hero_assassin_attack",
+      "promptVersion": 1,
+      "approvalStatus": "pending"
+    },
+    {
+      "id": "hero_engineer_attack",
+      "path": "assets/sprites/heroes/hero_engineer_attack.png",
+      "kind": "character",
+      "sourcePath": null,
+      "sourceSize": null,
+      "frameSize": [
+        256,
+        256
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.875
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-hero_engineer_attack",
+      "promptVersion": 1,
+      "approvalStatus": "pending"
+    },
+    {
+      "id": "hero_ice_mage_attack",
+      "path": "assets/sprites/heroes/hero_ice_mage_attack.png",
+      "kind": "character",
+      "sourcePath": null,
+      "sourceSize": null,
+      "frameSize": [
+        256,
+        256
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.875
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-hero_ice_mage_attack",
+      "promptVersion": 1,
+      "approvalStatus": "pending"
+    },
+    {
+      "id": "hero_banner_attack",
+      "path": "assets/sprites/heroes/hero_banner_attack.png",
+      "kind": "character",
+      "sourcePath": null,
+      "sourceSize": null,
+      "frameSize": [
+        256,
+        256
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.875
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-hero_banner_attack",
+      "promptVersion": 1,
+      "approvalStatus": "pending"
+    },
+    {
+      "id": "boss_gate_colossus_attack",
+      "path": "assets/sprites/bosses/boss_gate_colossus_attack.png",
+      "kind": "character",
+      "sourcePath": null,
+      "sourceSize": null,
+      "frameSize": [
+        512,
+        512
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.875
+      ],
+      "facing": "left",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-boss_gate_colossus_attack",
+      "promptVersion": 1,
+      "approvalStatus": "pending"
+    },
+    {
+      "id": "boss_furnace_golem_attack",
+      "path": "assets/sprites/bosses/boss_furnace_golem_attack.png",
+      "kind": "character",
+      "sourcePath": null,
+      "sourceSize": null,
+      "frameSize": [
+        512,
+        512
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.875
+      ],
+      "facing": "left",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-boss_furnace_golem_attack",
+      "promptVersion": 1,
+      "approvalStatus": "pending"
+    },
+    {
+      "id": "boss_prism_warden_attack",
+      "path": "assets/sprites/bosses/boss_prism_warden_attack.png",
+      "kind": "character",
+      "sourcePath": null,
+      "sourceSize": null,
+      "frameSize": [
+        512,
+        512
+      ],
+      "displaySize": null,
+      "hasAlpha": true,
+      "pivot": [
+        0.5,
+        0.875
+      ],
+      "facing": "left",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-boss_prism_warden_attack",
+      "promptVersion": 1,
+      "approvalStatus": "pending"
+    }
+  ]
+}
