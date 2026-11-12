@@ -84,6 +84,7 @@ assert.deepEqual(normalizeHeroOrder(['hero_archer', 'unknown', 'hero_archer']), 
   state.floors[1].challenge = 'cleared';
   const guard = addHero(state, 'hero_guard', 500);
   const archer = addHero(state, 'hero_archer', 584);
+  guard.combatLane = archer.combatLane = 0;
   archer.moveSpeed = 0;
   const monster = makeUnit(state, 'enemy', 'enemy_moss_blob', 1, 'enemy', 660, stationaryStats);
   state.units.push(monster);
@@ -99,6 +100,7 @@ assert.deepEqual(normalizeHeroOrder(['hero_archer', 'unknown', 'hero_archer']), 
   state.floors[1].challenge = 'cleared';
   const archer = addHero(state, 'hero_archer', 432);
   const guard = addHero(state, 'hero_guard', 350);
+  guard.combatLane = archer.combatLane = 0;
   const monster = makeUnit(state, 'enemy', 'enemy_bone_soldier', 1, 'enemy', 540, stationaryStats);
   const turret = makeUnit(state, 'turret', 'unit_copper_turret', 1, 'ally', 478, { ...stationaryStats, range: 260 });
   turret.expireAt = 10_000;
@@ -213,12 +215,14 @@ assert.deepEqual(normalizeHeroOrder(['hero_archer', 'unknown', 'hero_archer']), 
         if (left.team !== right.team && beforeLeft?.floor === left.floorId && beforeRight?.floor === right.floorId) {
           assert.ok((beforeLeft.x - beforeRight.x) * delta >= -0.001, 'opposing units do not pass through each other');
         }
-        if (left.team === right.team && Math.abs(delta) < 8) {
+        const differentLanes = sim.formationLane(left) !== null && sim.formationLane(right) !== null
+          && sim.formationLane(left) !== sim.formationLane(right);
+        if (left.team === right.team && !differentLanes && Math.abs(delta) < 8) {
           const pair = `${left.id}:${right.id}`;
           near.add(pair);
           const ticks = (overlapTicks.get(pair) ?? 0) + 1;
           overlapTicks.set(pair, ticks);
-          assert.ok(ticks < 20, 'allied passing resolves within one second instead of forming a lasting stack');
+          assert.ok(ticks < 20, `allied passing must resolve within one second in the same lane (units ${left.id}/${right.id}, t=${state.time})`);
         }
       }
     }

@@ -9,7 +9,7 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
-    "test:game": "tsx scripts/verify-endless.ts && tsx scripts/verify-formation.ts",
+    "test:game": "tsx scripts/verify-endless.ts && tsx scripts/verify-formation.ts && tsx scripts/verify-melee.ts && tsx scripts/verify-transitions.ts && tsx scripts/verify-active-skills.ts && tsx scripts/verify-rapid-advance.ts && tsx scripts/verify-equipment.ts",
     "sim": "tsx scripts/sim.ts"
   },
   "dependencies": {

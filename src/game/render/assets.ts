@@ -1,6 +1,7 @@
 // 美术资源注册表 —— 正式资源 ID → public 路径。
 // 生成的美术放入 public/assets 后，在 GENERATED 表中登记即可自动加载覆盖占位图。
 import { regionOfFloor } from '../data/monsters';
+import { BACKGROUND_THEMES, backgroundThemeForFloor } from './backgrounds';
 
 export interface AssetEntry {
   id: string;
@@ -185,9 +186,7 @@ export const GENERATED_ASSETS: Record<string, string> = {
   boss_thorn_titan: 'assets/sprites/bosses/boss_thorn_titan.png',
   boss_cinder_drake: 'assets/sprites/bosses/boss_cinder_drake.png',
   boss_glacier_lich: 'assets/sprites/bosses/boss_glacier_lich.png',
-  bg_tower_ruins: 'assets/backgrounds/bg_tower_ruins.png',
-  bg_tower_forge: 'assets/backgrounds/bg_tower_forge.png',
-  bg_tower_frost: 'assets/backgrounds/bg_tower_frost.png',
+  ...Object.fromEntries(BACKGROUND_THEMES.map(({ texture }) => [texture, `assets/backgrounds/${texture}.png`])),
   gem_attack: 'assets/icons/gems/gem_attack.png',
   gem_health: 'assets/icons/gems/gem_health.png',
 };
@@ -243,9 +242,9 @@ export const ASSET_MANIFEST: AssetEntry[] = [
   { id: 'boss_thorn_titan', path: 'assets/sprites/bosses/boss_thorn_titan.png', kind: 'character' },
   { id: 'boss_cinder_drake', path: 'assets/sprites/bosses/boss_cinder_drake.png', kind: 'character' },
   { id: 'boss_glacier_lich', path: 'assets/sprites/bosses/boss_glacier_lich.png', kind: 'character' },
-  { id: 'bg_tower_ruins', path: 'assets/backgrounds/bg_tower_ruins.png', kind: 'background' },
-  { id: 'bg_tower_forge', path: 'assets/backgrounds/bg_tower_forge.png', kind: 'background' },
-  { id: 'bg_tower_frost', path: 'assets/backgrounds/bg_tower_frost.png', kind: 'background' },
+  ...BACKGROUND_THEMES.map(({ texture }): AssetEntry => ({
+    id: texture, path: `assets/backgrounds/${texture}.png`, kind: 'background',
+  })),
   { id: 'prop_platform', path: 'assets/props/prop_platform.png', kind: 'prop' },
   { id: 'prop_door_ruins', path: 'assets/props/prop_door_ruins.png', kind: 'prop' },
   { id: 'prop_door_forge', path: 'assets/props/prop_door_forge.png', kind: 'prop' },
@@ -275,10 +274,7 @@ export function realAssetUrl(id: string): string | null {
 }
 
 export function backgroundForFloor(floorId: number): string {
-  const region = regionOfFloor(floorId);
-  if (region === 1) return 'bg_tower_ruins';
-  if (region === 2) return 'bg_tower_forge';
-  return 'bg_tower_frost';
+  return backgroundThemeForFloor(floorId).texture;
 }
 
 export function doorForFloor(floorId: number): string {

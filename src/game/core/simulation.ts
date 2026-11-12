@@ -38,6 +38,7 @@ const WIDTH = BALANCE.floorLogicalWidth;
 const EDGE_X = 10;
 const TEAM_SPACING = 1.2;
 const HERO_DEPLOY_INTERVAL = 1.05;
+const FORMATION_LANES = 3;
 
 interface PendingAttack {
   attacker: UnitState;
@@ -60,6 +61,7 @@ export class Simulation {
     this.state = normalizeGameState(state);
     this.rng = Random.fromState(state.rng);
     this.heroRanks = new Map(this.state.heroOrder.map((id, rank) => [id, rank]));
+    this.assignFormationLanes();
     this.maybeUnlockNextSegment();
   }
 
@@ -127,7 +129,8 @@ export class Simulation {
     const { id, hero } = ready;
     const floorId = this.heroSpawnFloor();
     const stats = heroStatsOf(s, id);
-    if (!this.hasEntrySpace(floorId, ALLY_SPAWN_X, 'hero', 'ally', stats.range)) return;
+    const lane = HEROES[id].melee ? this.entryMeleeLane(floorId, ALLY_SPAWN_X, 'hero', stats.range) : undefined;
+    if (!this.hasEntrySpace(floorId, ALLY_SPAWN_X, 'hero', 'ally', stats.range, lane)) return;
 
     const u = ready.unit ?? makeUnit(s, 'hero', id, floorId, 'ally', ALLY_SPAWN_X, stats);
     u.heroLevel = hero.level;
@@ -151,6 +154,7 @@ export class Simulation {
     } else {
       s.units.push(u);
     }
+    u.combatLane = lane;
     s.heroDeployAt = s.time + HERO_DEPLOY_INTERVAL;
     s.lastHeroDeployed = id;
     this.emit({ type: ready.unit ? 'hero_respawn' : 'hero_deployed', at: s.time, heroId: id, floorId });
@@ -180,7 +184,8 @@ export class Simulation {
     if (s.summon.inventory < 1) return { ok: false, reason: '库存不足' };
     if (this.aliveSquires() >= s.summon.aliveMax) return { ok: false, reason: '场上勇者已达上限' };
     if (s.summon.spawnCooldown > 0) return { ok: false, reason: '生成冷却中' };
-    if (!this.hasEntrySpace(floorId, ALLY_SPAWN_X, 'squire', 'ally', MELEE_RANGE)) {
+    const lane = this.entryMeleeLane(floorId, ALLY_SPAWN_X, 'squire', MELEE_RANGE);
+    if (!this.hasEntrySpace(floorId, ALLY_SPAWN_X, 'squire', 'ally', MELEE_RANGE, lane)) {
       return { ok: false, reason: '入口拥挤，等待前队推进' };
     }
     return { ok: true };
@@ -192,6 +197,7 @@ export class Simulation {
     const s = this.state;
     const stats = squireStatsOf(s);
     const unit = makeUnit(s, 'squire', 'unit_summon_squire', floorId, 'ally', ALLY_SPAWN_X, stats);
+    unit.combatLane = this.entryMeleeLane(floorId, ALLY_SPAWN_X, 'squire', stats.range);
     s.units.push(unit);
     s.summon.inventory -= 1;
     s.summon.spawnCooldown = BALANCE.squireSpawnInterval;
@@ -221,6 +227,8 @@ export class Simulation {
     s.activeSkills.battleCryCooldown = Math.max(0, s.activeSkills.battleCryCooldown - dt);
     s.activeSkills.lifeEchoCooldown = Math.max(0, s.activeSkills.lifeEchoCooldown - dt);
     s.activeSkills.crystalRainCooldown = Math.max(0, s.activeSkills.crystalRainCooldown - dt);
+    s.activeSkills.rapidAdvanceCooldown = Math.max(0, s.activeSkills.rapidAdvanceCooldown - dt);
+    if (s.activeSkills.rapidAdvanceUntil <= s.time) s.activeSkills.rapidAdvanceUntil = 0;
   }
 
   // —— 楼层挑战 ——
@@ -352,6 +360,7 @@ export class Simulation {
     const attacks: PendingAttack[] = [];
     const heals: { target: UnitState; amount: number }[] = [];
     const newUnits: UnitState[] = [];
+    this.assignFormationLanes();
     const marchTargets = this.heroMarchTargets();
     const yielding = new Set<number>();
 
@@ -527,13 +536,61 @@ export class Simulation {
     return u.kind !== 'turret';
   }
 
+  // 近战和远程都分三路，避免远程单列占满整层、把增援堵在楼梯下。
+  // 战后保留通道，刷新或队友阵亡不重新洗牌。
+  formationLane(u: UnitState): number | null {
+    return u.team === 'ally' && (u.kind === 'hero' || u.kind === 'squire') && u.phase !== 'dead'
+      ? u.combatLane ?? null : null;
+  }
+
+  meleeLane(u: UnitState): number | null {
+    return this.isMelee(u) ? this.formationLane(u) : null;
+  }
+
+  private assignFormationLanes() {
+    const groups = new Map<number, UnitState[]>();
+    for (const u of this.state.units) {
+      if (u.team !== 'ally' || (u.kind !== 'hero' && u.kind !== 'squire') || u.phase === 'dead') continue;
+      const group = groups.get(u.floorId) ?? [];
+      group.push(u);
+      groups.set(u.floorId, group);
+    }
+    for (const group of groups.values()) {
+      const counts = new Array<number>(FORMATION_LANES).fill(0);
+      for (const u of group) {
+        const lane = u.combatLane;
+        if (lane !== undefined && Number.isInteger(lane) && lane >= 0 && lane < FORMATION_LANES) counts[lane]++;
+        else u.combatLane = undefined;
+      }
+      // 先让最靠前的单位留在中路，后排依次补到空闲通道。
+      group.sort((a, b) => b.x - a.x || a.id - b.id);
+      for (const u of group) {
+        if (u.combatLane !== undefined) continue;
+        const lane = counts.indexOf(Math.min(...counts));
+        u.combatLane = lane;
+        counts[lane]++;
+      }
+    }
+  }
+
+  private separateMeleeLanes(a: UnitState, b: UnitState): boolean {
+    const lane = this.meleeLane(a);
+    return lane !== null && this.meleeLane(b) !== null && lane !== this.meleeLane(b);
+  }
+
+  private separateFormationLanes(a: UnitState, b: UnitState): boolean {
+    const lane = this.formationLane(a);
+    const otherLane = this.formationLane(b);
+    return lane !== null && otherLane !== null && lane !== otherLane;
+  }
+
   private meleeClearance(u: UnitState, target: UnitState, allies: UnitState[]): number | null {
     if (u.team !== 'ally' || this.isMelee(u)) return null;
     const dir = Math.sign(target.x - u.x);
     if (dir === 0) return null;
     let destination = u.x;
     for (const ally of allies) {
-      if (!this.isMelee(ally)) continue;
+      if (!this.isMelee(ally) || this.separateFormationLanes(u, ally)) continue;
       const gap = this.teamGap(u.kind, ally.kind);
       const relativeX = dir * (u.x - ally.x);
       if (relativeX < -gap || relativeX > gap * 2) continue;
@@ -548,7 +605,7 @@ export class Simulation {
 
   private moveToward(u: UnitState, target: UnitState, dt: number) {
     const dir = target.x > u.x ? 1 : -1;
-    const speed = u.moveSpeed * (u.slowUntil > this.state.time ? 1 - u.slowFactor : 1);
+    const speed = this.currentMoveSpeed(u);
     u.x += dir * speed * dt;
     u.x = Math.max(10, Math.min(WIDTH - 10, u.x));
     u.facing = dir;
@@ -604,7 +661,9 @@ export class Simulation {
       }
       for (let i = 1; i < group.length; i++) {
         const follower = group[i];
-        const ahead = group[i - 1];
+        // 近战只跟随本通道前队；不同通道并肩行进，不再战后瞬间收成单列。
+        const ahead = group.slice(0, i).reverse().find((u) => !this.separateMeleeLanes(u, follower));
+        if (!ahead) continue;
         const gap = this.teamGap(ahead.kind, follower.kind);
         targets.set(follower.id, Math.max(EDGE_X, Math.min(WIDTH - EDGE_X, ahead.x - dir * gap)));
       }
@@ -619,7 +678,7 @@ export class Simulation {
 
   private moveTowardPoint(u: UnitState, targetX: number, dt: number, moveSpeed: number): boolean {
     const dx = targetX - u.x;
-    const speed = moveSpeed * (u.slowUntil > this.state.time ? 1 - u.slowFactor : 1);
+    const speed = this.currentMoveSpeed(u, moveSpeed);
     if (Math.abs(dx) > 0.01 && speed > 0) {
       u.facing = Math.sign(dx);
       u.x += u.facing * Math.min(Math.abs(dx), speed * dt);
@@ -628,6 +687,14 @@ export class Simulation {
     }
     u.phase = 'idle';
     return false;
+  }
+
+  private currentMoveSpeed(u: UnitState, baseSpeed = u.moveSpeed): number {
+    const rapidAdvance = u.kind === 'hero' && u.team === 'ally'
+      && this.state.activeSkills.rapidAdvanceUntil > this.state.time;
+    const boost = rapidAdvance ? 1 + BALANCE.skillRapidAdvance.moveBoost : 1;
+    const slow = u.slowUntil > this.state.time ? 1 - u.slowFactor : 1;
+    return baseSpeed * boost * slow;
   }
 
   private canAscend(floorId: number): boolean {
@@ -720,6 +787,8 @@ export class Simulation {
       }
       case 'banner': {
         for (const a of allies) {
+          // 战意鼓舞等更强增益持续期间，旗帜不能覆盖其倍率或缩短持续时间。
+          if (a.atkBoostUntil > s.time && a.atkBoostFactor > 0.15) continue;
           a.atkBoostUntil = s.time + 5;
           a.atkBoostFactor = 0.15;
         }
@@ -850,16 +919,10 @@ export class Simulation {
   // —— 跨层转移 ——
   private resolveTransitions() {
     const s = this.state;
-    const heroLeaders = new Map<number, UnitState>();
-    for (const u of s.units) {
-      if (u.kind !== 'hero' || u.phase === 'dead') continue;
-      const leader = heroLeaders.get(u.floorId);
-      if (!leader || this.heroRank(u) < this.heroRank(leader)) heroLeaders.set(u.floorId, u);
-    }
     for (const u of s.units) {
       if (u.team !== 'ally' || u.phase === 'dead') continue;
       if (u.kind === 'turret') continue;
-      if (u.kind === 'hero' && heroLeaders.get(u.floorId) !== u) continue;
+      // 已抵达楼梯的单位先通过，不能在此等待被自己队列挡住的召唤顺序前队。
       const hasEnemy = this.enemiesOnFloor(u.floorId).length > 0;
       if (hasEnemy) continue;
       if (!isFloorCleared(s, u.floorId)) continue;
@@ -867,18 +930,22 @@ export class Simulation {
       const destination = this.allyDestination(u);
       if (destination === STAIR_X && u.x >= STAIR_X - 2) {
         if (this.canAscend(u.floorId)) {
-          if (!this.hasEntrySpace(u.floorId + 1, ALLY_SPAWN_X, u.kind, u.team, u.range)) continue;
+          const lane = this.isMelee(u) ? this.entryMeleeLane(u.floorId + 1, ALLY_SPAWN_X, u.kind, u.range) : undefined;
+          if (!this.hasEntrySpace(u.floorId + 1, ALLY_SPAWN_X, u.kind, u.team, u.range, lane)) continue;
           u.floorId += 1;
           u.x = ALLY_SPAWN_X;
+          u.combatLane = lane;
         } else if (u.kind === 'squire') {
           // 勇者到达已清空但无法上行的顶层入口时退役，释放存活上限，避免永久堵塞
           u.phase = 'dead';
           this.emit({ type: 'squire_retire', at: s.time, floorId: u.floorId });
         }
       } else if (destination === LEFT_X && u.x <= LEFT_X + 2) {
-        if (isFloorUnlocked(s, u.floorId - 1) && this.hasEntrySpace(u.floorId - 1, STAIR_X - 4, u.kind, u.team, u.range)) {
+        const lane = this.isMelee(u) ? this.entryMeleeLane(u.floorId - 1, STAIR_X - 4, u.kind, u.range) : undefined;
+        if (isFloorUnlocked(s, u.floorId - 1) && this.hasEntrySpace(u.floorId - 1, STAIR_X - 4, u.kind, u.team, u.range, lane)) {
           u.floorId -= 1;
           u.x = STAIR_X - 4;
+          u.combatLane = lane;
         }
       }
     }
@@ -899,9 +966,24 @@ export class Simulation {
     return (this.unitRadius(a) + this.unitRadius(b)) * TEAM_SPACING;
   }
 
-  private hasEntrySpace(floorId: number, x: number, kind: UnitState['kind'], team: UnitState['team'], range: number): boolean {
+  private entryMeleeLane(floorId: number, x: number, kind: UnitState['kind'], range: number): number | undefined {
+    // 无敌人的入口仍依次通过；接敌堵门时，可使用空闲的近战通道。
+    if (this.enemiesOnFloor(floorId).length === 0) return undefined;
+    const counts = new Array<number>(FORMATION_LANES).fill(0);
+    for (const u of this.alliesOnFloor(floorId)) {
+      const lane = this.formationLane(u);
+      if (lane !== null) counts[lane]++;
+    }
+    const lanes = counts.map((_, lane) => lane).sort((a, b) => counts[a] - counts[b] || a - b);
+    return lanes.find((lane) => this.hasEntrySpace(floorId, x, kind, 'ally', range, lane)) ?? lanes[0];
+  }
+
+  private hasEntrySpace(floorId: number, x: number, kind: UnitState['kind'], team: UnitState['team'], range: number, lane?: number): boolean {
     return !this.state.units.some((u) => {
       if (u.floorId !== floorId || u.phase === 'dead') return false;
+      if (lane !== undefined && u.team === team && this.formationLane(u) !== null && this.formationLane(u) !== lane) return false;
+      // 近战从空闲通道进入后会借道越过远程，不能被入口处的远程队尾挡在楼下。
+      if (lane !== undefined && team === 'ally' && u.team === team && !this.isMelee(u)) return false;
       const gap = u.team === team ? this.teamGap(kind, u.kind)
         : Math.min((this.unitRadius(kind) + this.unitRadius(u.kind)) * 0.9, range, u.range);
       return Math.abs(u.x - x) < gap - 0.01;
@@ -912,6 +994,7 @@ export class Simulation {
     if (mover.phase !== 'moving' || mover.facing !== dir) return false;
     // 反向通行，或近战借道穿过交战的远程和炮台。
     if ((other.phase === 'moving' && other.facing === -dir)
+      || (fighting && mover.team === 'ally' && this.isMelee(mover) && !this.isMelee(other))
       || (other.phase === 'attacking' && mover.range < other.range)
       || other.kind === 'turret') return true;
     if ((fighting && !marchTargets.has(mover.id)) || other.phase !== 'idle' || mover.team !== 'ally') return false;
@@ -920,6 +1003,7 @@ export class Simulation {
   }
 
   private separatePair(a: UnitState, b: UnitState, cleared: boolean, fighting: boolean, marchTargets: Map<number, number>) {
+    if (this.separateFormationLanes(a, b)) return;
     if (a.team !== b.team) {
       // 隔开对阵双方，间距必须仍允许最短的攻击距离。
       const sum = this.unitRadius(a.kind) + this.unitRadius(b.kind);
@@ -971,12 +1055,17 @@ export class Simulation {
         : a.team === 'ally' ? -1 : 1));
       const cleared = isFloorCleared(s, units[0].floorId);
       const fighting = units.some((u) => u.team !== units[0].team);
-      // 左右各扫一遍，间距向双方队尾传递。
+      // 错位近战可能夹在同一道的两个单位之间，不能只检查横坐标相邻者。
+      // 左右各扫一遍，同时保留敌人对所有通道的阻挡。
       for (let i = 1; i < units.length; i++) {
-        this.separatePair(units[i - 1], units[i], cleared, fighting, marchTargets);
+        for (let j = i - 1; j >= 0; j--) {
+          this.separatePair(units[j], units[i], cleared, fighting, marchTargets);
+        }
       }
       for (let i = units.length - 1; i > 0; i--) {
-        this.separatePair(units[i - 1], units[i], cleared, fighting, marchTargets);
+        for (let j = i - 1; j >= 0; j--) {
+          this.separatePair(units[j], units[i], cleared, fighting, marchTargets);
+        }
       }
     }
   }
@@ -1186,28 +1275,78 @@ export class Simulation {
     return { ok: missing.length === 0, missing };
   }
 
-  useActiveSkill(skill: 'battleCry' | 'lifeEcho' | 'crystalRain', floorId: number): CommandResult {
+  getActiveSkillTargetFloor(): number {
     const s = this.state;
-    if (!isFloorUnlocked(s, floorId)) return { ok: false, reason: '楼层未解锁', events: [] };
-    if (skill === 'battleCry') {
+    // 每段预开放十层不代表已推进到段顶；空战场也以实际推进前线为目标。
+    let floor = Math.min(s.maxFloorUnlocked, s.highestClearedFloor + 1);
+    for (const entry of Object.values(s.floors)) {
+      // 保留已交战楼层，最后一怪死亡或波次间隙不会让目标退回低层。
+      if (entry.challenge === 'active' && isFloorUnlocked(s, entry.floorId)) floor = Math.max(floor, entry.floorId);
+    }
+    for (const unit of s.units) {
+      if (unit.phase === 'dead' || unit.hp <= 0 || !isFloorUnlocked(s, unit.floorId)) continue;
+      floor = Math.max(floor, unit.floorId);
+    }
+    return floor;
+  }
+
+  useActiveSkill(skill: 'battleCry' | 'lifeEcho' | 'crystalRain' | 'rapidAdvance'): CommandResult {
+    const s = this.state;
+    // 点击时重新锁定实际推进前线，旧的手动选层不参与；允许空目标施放。
+    const floorId = this.getActiveSkillTargetFloor();
+    const eventStart = this.events.length;
+    const targets: { unitId: number; x: number; amount: number; floorId?: number }[] = [];
+    let duration = 0;
+    if (skill === 'rapidAdvance') {
+      if (s.activeSkills.rapidAdvanceCooldown > 0) return { ok: false, reason: '冷却中', events: [] };
+      duration = BALANCE.skillRapidAdvance.duration;
+      s.activeSkills.rapidAdvanceUntil = s.time + duration;
+      s.activeSkills.rapidAdvanceCooldown = BALANCE.skillRapidAdvance.cooldown;
+      for (const u of s.units) {
+        if (u.kind !== 'hero' || u.team !== 'ally' || u.phase === 'dead' || u.hp <= 0) continue;
+        targets.push({ unitId: u.id, x: u.x / WIDTH, amount: 0, floorId: u.floorId });
+      }
+    } else if (skill === 'battleCry') {
       if (s.activeSkills.battleCryCooldown > 0) return { ok: false, reason: '冷却中', events: [] };
-      for (const u of this.alliesOnFloor(floorId)) { u.atkBoostUntil = s.time + BALANCE.skillBattleCry.duration; u.atkBoostFactor = BALANCE.skillBattleCry.atkBoost; }
+      const allies = this.alliesOnFloor(floorId).filter((u) => u.hp > 0);
+      duration = BALANCE.skillBattleCry.duration;
+      for (const u of allies) {
+        u.atkBoostUntil = s.time + duration;
+        u.atkBoostFactor = BALANCE.skillBattleCry.atkBoost;
+        targets.push({ unitId: u.id, x: u.x / WIDTH, amount: 0 });
+      }
       s.activeSkills.battleCryCooldown = BALANCE.skillBattleCry.cooldown;
     } else if (skill === 'lifeEcho') {
       if (s.activeSkills.lifeEchoCooldown > 0) return { ok: false, reason: '冷却中', events: [] };
-      for (const u of this.alliesOnFloor(floorId)) u.hp = Math.min(u.maxHp, u.hp + Math.round(u.maxHp * BALANCE.skillLifeEcho.hpRatio));
+      const wounded = this.alliesOnFloor(floorId).filter((u) => u.hp > 0 && u.hp < u.maxHp);
+      for (const u of wounded) {
+        const amount = Math.min(u.maxHp - u.hp, Math.round(u.maxHp * BALANCE.skillLifeEcho.hpRatio));
+        u.hp += amount;
+        targets.push({ unitId: u.id, x: u.x / WIDTH, amount });
+        this.emit({ type: 'heal', at: s.time, targetId: u.id, amount });
+      }
       s.activeSkills.lifeEchoCooldown = BALANCE.skillLifeEcho.cooldown;
     } else {
       if (s.activeSkills.crystalRainCooldown > 0) return { ok: false, reason: '冷却中', events: [] };
+      const enemies = this.enemiesOnFloor(floorId).filter((u) => u.hp > 0);
       const dmg = Math.round(BALANCE.skillCrystalRain.dmg + s.highestClearedFloor * BALANCE.skillCrystalRain.dmgScaling);
-      for (const u of this.enemiesOnFloor(floorId)) {
-        u.hp -= dmg;
+      for (const u of enemies) {
+        const amount = Math.min(u.hp, dmg);
+        u.hp -= amount;
+        targets.push({ unitId: u.id, x: u.x / WIDTH, amount });
+        this.emit({ type: 'hit', at: s.time, targetId: u.id, dmg: amount, crit: false });
         if (u.hp <= 0) { u.hp = 0; u.phase = 'dead'; this.onUnitKilled(u); }
       }
       s.activeSkills.crystalRainCooldown = BALANCE.skillCrystalRain.cooldown;
     }
-    this.emit({ type: 'active_skill', at: s.time, skill, floorId });
-    return { ok: true, events: [...this.events] };
+    this.emit({
+      type: 'active_skill', at: s.time, skill, floorId,
+      ...(skill === 'rapidAdvance' ? { scope: 'allHeroes' } : {}),
+      affectedCount: targets.length,
+      totalAmount: targets.reduce((total, target) => total + target.amount, 0),
+      duration, targets,
+    });
+    return { ok: true, events: this.events.slice(eventStart) };
   }
 
   recruit(): CommandResult {
@@ -1415,19 +1554,20 @@ export class Simulation {
     const eq = s.equipment.find((e) => e.id === equipId);
     if (!hero || !hero.owned) return { ok: false, reason: '未拥有该英雄', events: [] };
     if (!eq) return { ok: false, reason: '装备不存在', events: [] };
-    // 卸下同一槽位已有装备
-    if (eq.slot === 'weapon') {
-      if (hero.weapon === equipId) return { ok: false, reason: '已装备', events: [] };
-      hero.weapon = equipId;
-    } else if (eq.slot === 'armor') {
-      if (hero.armor === equipId) return { ok: false, reason: '已装备', events: [] };
-      hero.armor = equipId;
-    } else {
-      if (hero.trinket === equipId) return { ok: false, reason: '已装备', events: [] };
-      hero.trinket = equipId;
+    if (hero[eq.slot] === equipId) return { ok: false, reason: '已装备', events: [] };
+    const affectedHeroes = new Map([[heroId, this.heroHpRatio(heroId)]]);
+    // 同一装备只归一名英雄；转移时同时清空原穿戴者的槽位。
+    for (const id of HERO_ORDER) {
+      if (id !== heroId && s.heroes[id][eq.slot] === equipId) {
+        affectedHeroes.set(id, this.heroHpRatio(id));
+        s.heroes[id][eq.slot] = null;
+      }
     }
+    const previous = s.equipment.find((item) => item.id === hero[eq.slot]);
+    if (previous) previous.equippedBy = null;
+    hero[eq.slot] = equipId;
     eq.equippedBy = heroId;
-    this.applyHeroStats(heroId, this.heroHpRatio(heroId));
+    for (const [id, ratio] of affectedHeroes) this.applyHeroStats(id, ratio);
     this.emit({ type: 'equip', at: s.time, heroId, equipId });
     return { ok: true, events: [...this.events] };
   }

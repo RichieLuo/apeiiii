@@ -5,6 +5,7 @@ import { useGame } from './useGame';
 import { store } from '../platform/store';
 import { HEROES, HERO_ORDER } from '../game/data/heroes';
 import { BALANCE } from '../game/data/economy';
+import { canAscendHero } from '../game/core/state';
 import { realAssetUrl } from '../game/render/assets';
 import { Icon } from './Icon';
 import {
@@ -85,6 +86,7 @@ export default function App() {
   }, []);
 
   const r = state.resources;
+  const ascendableHeroes = new Set(HERO_ORDER.filter((id) => canAscendHero(state, id)));
   const aliveSquires = state.units.filter((u) => u.kind === 'squire' && u.phase !== 'dead').length;
 
   const openPanel = (p: PanelName) => {
@@ -139,10 +141,12 @@ export default function App() {
             className="btn ghost hero-drawer-toggle"
             aria-controls="hero-list"
             aria-expanded={heroListOpen}
+            aria-label={`${heroListOpen ? '收起英雄列表' : '英雄'}${ascendableHeroes.size > 0 ? `，${ascendableHeroes.size} 名可升星` : ''}`}
             onClick={() => setHeroListOpen((v) => !v)}
           >
             <Icon name={heroListOpen ? 'close' : 'users'} />
             {heroListOpen ? '收起' : '英雄'}
+            {ascendableHeroes.size > 0 && <span className="hero-ascend-count" aria-hidden="true">{ascendableHeroes.size}</span>}
           </button>
           <button type="button" className="btn ghost" onClick={() => openPanel('settings')}>
             <Icon name="settings" />
@@ -164,17 +168,19 @@ export default function App() {
                   onClick={() => setHeroFilter(value)}><Icon name={icon} />{label}</button>
               ))}
             </div>
+            {ascendableHeroes.size > 0 && <span className="hero-ascend-summary"><Icon name="spark" />共 {ascendableHeroes.size} 名英雄可升星</span>}
           </div>
           {HERO_ORDER.map((id) => {
             const h = state.heroes[id];
             const cfg = HEROES[id];
             const owned = h.owned;
+            const canAscend = ascendableHeroes.has(id);
             if (heroFilter !== 'all' && cfg.melee !== (heroFilter === 'melee')) return null;
             return (
               <button
                 key={id}
                 type="button"
-                className={`hero-card ${owned ? 'owned' : ''}`}
+                className={`hero-card ${owned ? 'owned' : ''}${canAscend ? ' ascendable' : ''}`}
                 onClick={() => {
                   setSelectedHero(id);
                   openPanel('hero');
@@ -197,6 +203,7 @@ export default function App() {
                   <span className="hero-sub">{owned ? `Lv${h.level} ★${h.star}` : cfg.title}</span>
                 </span>
                 <span className="hero-card-status">
+                  {canAscend && <span className="hero-ascend-badge"><Icon name="up" />可升星</span>}
                   <HeroRoleBadge melee={cfg.melee} />
                   <span className={owned && h.enabled ? 'hero-state active' : 'hero-state'}>
                     <Icon name={owned ? h.enabled ? 'check' : 'pause' : 'lock'} />
@@ -216,7 +223,7 @@ export default function App() {
       </div>
 
       {/* 底部技能栏 */}
-      <SkillBar state={state} canUnlock={snap.canUnlock.ok} onOpen={() => openPanel('summon')} onFocusFloor={focusFloor} />
+      <SkillBar state={state} target={snap.skillTargetFloor} canUnlock={snap.canUnlock.ok} onOpen={() => openPanel('summon')} onFocusFloor={focusFloor} />
 
       {/* 底部导航 */}
       <nav className="nav-bar" aria-label="游戏功能">
@@ -259,7 +266,7 @@ export default function App() {
               {panel === 'hero-order' && <HeroOrderPanel />}
               {panel === 'gem' && <GemPanel />}
               {panel === 'recruit' && <RecruitPanel />}
-              {panel === 'equipment' && <EquipmentPanel heroId={selectedHero ?? 'hero_guard'} />}
+              {panel === 'equipment' && <EquipmentPanel heroId={selectedHero ?? 'hero_guard'} onSelectHero={setSelectedHero} />}
               {panel === 'quest' && <QuestPanel />}
               {panel === 'stronghold' && <StrongholdPanel />}
               {panel === 'arena' && <ArenaPanel />}
@@ -275,45 +282,56 @@ export default function App() {
   );
 }
 
-function SkillBar({ state, canUnlock, onOpen, onFocusFloor }: {
+function SkillBar({ state, target, canUnlock, onOpen, onFocusFloor }: {
   state: ReturnType<typeof useGame>['state'];
+  target: number;
   canUnlock: boolean;
   onOpen: () => void;
   onFocusFloor: (floor: number) => void;
 }) {
   const a = state.activeSkills;
-  const target = state.selectedFloor;
+  const attackPercent = Math.round(BALANCE.skillBattleCry.atkBoost * 100);
+  const healPercent = Math.round(BALANCE.skillLifeEcho.hpRatio * 100);
+  const rainDamage = Math.round(BALANCE.skillCrystalRain.dmg + state.highestClearedFloor * BALANCE.skillCrystalRain.dmgScaling);
+  const boostedUntil = state.units.reduce((until, unit) => unit.floorId === target && unit.team === 'ally'
+    && unit.phase !== 'dead' && unit.atkBoostFactor >= BALANCE.skillBattleCry.atkBoost
+    ? Math.max(until, unit.atkBoostUntil) : until, state.time);
+  const boostRemaining = Math.ceil(boostedUntil - state.time);
+  const advanceRemaining = Math.max(0, Math.ceil(a.rapidAdvanceUntil - state.time));
   const autoFloor = state.summon.autoTargetFloor ?? 1;
   const setAutoFloor = (floor: number) => store.dispatch('setAutoSummon', state.summon.autoEnabled, floor);
   const skills = [
-    { key: 'battleCry', name: '战意鼓舞', icon: 'horn', cd: a.battleCryCooldown, total: BALANCE.skillBattleCry.cooldown },
-    { key: 'lifeEcho', name: '生命回响', icon: 'heart', cd: a.lifeEchoCooldown, total: BALANCE.skillLifeEcho.cooldown },
-    { key: 'crystalRain', name: '晶雨打击', icon: 'rain', cd: a.crystalRainCooldown, total: BALANCE.skillCrystalRain.cooldown },
+    { key: 'battleCry', name: '战意鼓舞', icon: 'horn', cd: a.battleCryCooldown, total: BALANCE.skillBattleCry.cooldown,
+      effect: `攻击 +${attackPercent}%`, description: `使目标层当前友军攻击提高 ${attackPercent}%，持续 ${BALANCE.skillBattleCry.duration} 秒。适合交战前使用。` },
+    { key: 'lifeEcho', name: '生命回响', icon: 'heart', cd: a.lifeEchoCooldown, total: BALANCE.skillLifeEcho.cooldown,
+      effect: `回血 ${healPercent}%`, description: `立即为目标层受伤友军恢复各自最大生命的 ${healPercent}%，不超过满血。` },
+    { key: 'crystalRain', name: '晶雨打击', icon: 'rain', cd: a.crystalRainCooldown, total: BALANCE.skillCrystalRain.cooldown,
+      effect: `群伤 ${rainDamage}`, description: `立即对目标层每个敌人造成 ${rainDamage} 点伤害；伤害随最高首通层数提高。` },
+    { key: 'rapidAdvance', name: '加速前进', icon: 'bolt', cd: a.rapidAdvanceCooldown, total: BALANCE.skillRapidAdvance.cooldown,
+      effect: `全体移速 ×${1 + BALANCE.skillRapidAdvance.moveBoost}`,
+      description: `所有楼层的英雄移动速度提高 ${Math.round(BALANCE.skillRapidAdvance.moveBoost * 100)}%，持续 ${BALANCE.skillRapidAdvance.duration} 秒；期间新出场或复活的英雄也享受剩余效果，攻击速度不变。` },
   ] as const;
   return (
+    <div className="skill-dock">
     <div className="skill-bar">
-      <span className="skill-target">
-        <Icon name="target" />
-        <span className="skill-copy">
-          <span>技能目标</span>
-          <strong>{target == null ? '未选楼层' : `第 ${target} 层`}</strong>
-        </span>
-      </span>
       {skills.map((s) => (
         <button
           key={s.key}
           type="button"
-          className={`skill-btn skill-${s.key}${s.cd <= 0 && target != null ? ' is-ready' : ''}`}
-          disabled={s.cd > 0 || target == null}
-          onClick={() => target != null && store.dispatch('useActiveSkill', s.key, target)}
+          className={`skill-btn skill-${s.key}${s.cd <= 0 ? ' is-ready' : ''}${(s.key === 'battleCry' && boostRemaining > 0) || (s.key === 'rapidAdvance' && advanceRemaining > 0) ? ' is-active' : ''}`}
+          disabled={s.cd > 0}
+          title={`${s.description} 冷却 ${s.total} 秒。`}
+          onClick={() => store.dispatch('useActiveSkill', s.key)}
         >
           <span className="skill-emblem" aria-hidden="true"
-            style={{ '--skill-charge': `${target == null && s.cd <= 0 ? 0 : 100 * (1 - Math.min(1, s.cd / s.total))}%` } as CSSProperties}>
+            style={{ '--skill-charge': `${100 * (1 - Math.min(1, s.cd / s.total))}%` } as CSSProperties}>
             <Icon name={s.icon} />
           </span>
           <span className="skill-copy">
             <span>{s.name}</span>
-            <span className="skill-cd">{s.cd > 0 ? `${Math.ceil(s.cd)}s` : target == null ? '待选目标' : '就绪'}</span>
+            <span className="skill-effect">{s.key === 'battleCry' && boostRemaining > 0 ? `加攻中 · ${boostRemaining}秒`
+              : s.key === 'rapidAdvance' && advanceRemaining > 0 ? `全体加速 ${advanceRemaining}秒` : s.effect}</span>
+            <span className="skill-cd">{s.cd > 0 ? `冷却 ${Math.ceil(s.cd)}秒` : '点击施放'}</span>
           </span>
         </button>
       ))}
@@ -362,6 +380,7 @@ function SkillBar({ state, canUnlock, onOpen, onFocusFloor }: {
           </span>
         </button>
       )}
+    </div>
     </div>
   );
 }

@@ -95,6 +95,7 @@ export const BALANCE = {
   skillBattleCry: { name: '战意鼓舞', atkBoost: 0.3, duration: 8, cooldown: 30 },
   skillLifeEcho: { name: '生命回响', hpRatio: 0.25, cooldown: 35 },
   skillCrystalRain: { name: '晶雨打击', dmg: 50, cooldown: 45, dmgScaling: 2.5 }, // dmg 为基础值，随最高首通层成长
+  skillRapidAdvance: { name: '加速前进', moveBoost: 1, duration: 10, cooldown: 30 },
 
   // 离线收益
   offlineMaxHours: 8,

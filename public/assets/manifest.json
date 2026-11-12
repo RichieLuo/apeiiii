@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-11T08:34:27.982Z",
+  "generatedAt": "2026-11-11T17:08:24.551Z",
   "assets": [
     {
       "id": "hero_guard",
@@ -2251,6 +2251,202 @@
       "promptId": "ART-boss_prism_warden_attack",
       "promptVersion": 1,
       "approvalStatus": "pending"
+    },
+    {
+      "id": "bg_tower_grotto",
+      "path": "assets/backgrounds/bg_tower_grotto.png",
+      "kind": "background",
+      "sourcePath": "public/assets/backgrounds/bg_tower_grotto.png",
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "frameSize": [
+        1536,
+        1024
+      ],
+      "displaySize": null,
+      "hasAlpha": false,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-bg_tower_grotto",
+      "promptVersion": 1,
+      "approvalStatus": "approved"
+    },
+    {
+      "id": "bg_tower_tidal",
+      "path": "assets/backgrounds/bg_tower_tidal.png",
+      "kind": "background",
+      "sourcePath": "public/assets/backgrounds/bg_tower_tidal.png",
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "frameSize": [
+        1536,
+        1024
+      ],
+      "displaySize": null,
+      "hasAlpha": false,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-bg_tower_tidal",
+      "promptVersion": 1,
+      "approvalStatus": "approved"
+    },
+    {
+      "id": "bg_tower_tomb",
+      "path": "assets/backgrounds/bg_tower_tomb.png",
+      "kind": "background",
+      "sourcePath": "public/assets/backgrounds/bg_tower_tomb.png",
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "frameSize": [
+        1536,
+        1024
+      ],
+      "displaySize": null,
+      "hasAlpha": false,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-bg_tower_tomb",
+      "promptVersion": 1,
+      "approvalStatus": "approved"
+    },
+    {
+      "id": "bg_tower_clockwork",
+      "path": "assets/backgrounds/bg_tower_clockwork.png",
+      "kind": "background",
+      "sourcePath": "public/assets/backgrounds/bg_tower_clockwork.png",
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "frameSize": [
+        1536,
+        1024
+      ],
+      "displaySize": null,
+      "hasAlpha": false,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-bg_tower_clockwork",
+      "promptVersion": 1,
+      "approvalStatus": "approved"
+    },
+    {
+      "id": "bg_tower_library",
+      "path": "assets/backgrounds/bg_tower_library.png",
+      "kind": "background",
+      "sourcePath": "public/assets/backgrounds/bg_tower_library.png",
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "frameSize": [
+        1536,
+        1024
+      ],
+      "displaySize": null,
+      "hasAlpha": false,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-bg_tower_library",
+      "promptVersion": 1,
+      "approvalStatus": "approved"
+    },
+    {
+      "id": "bg_tower_sanctuary",
+      "path": "assets/backgrounds/bg_tower_sanctuary.png",
+      "kind": "background",
+      "sourcePath": "public/assets/backgrounds/bg_tower_sanctuary.png",
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "frameSize": [
+        1536,
+        1024
+      ],
+      "displaySize": null,
+      "hasAlpha": false,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-bg_tower_sanctuary",
+      "promptVersion": 1,
+      "approvalStatus": "approved"
+    },
+    {
+      "id": "bg_tower_astral",
+      "path": "assets/backgrounds/bg_tower_astral.png",
+      "kind": "background",
+      "sourcePath": "public/assets/backgrounds/bg_tower_astral.png",
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "frameSize": [
+        1536,
+        1024
+      ],
+      "displaySize": null,
+      "hasAlpha": false,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "facing": "right",
+      "animationMode": "procedural",
+      "frames": null,
+      "frameDurationsMs": null,
+      "atlas": null,
+      "promptId": "ART-bg_tower_astral",
+      "promptVersion": 1,
+      "approvalStatus": "approved"
     }
   ]
 }

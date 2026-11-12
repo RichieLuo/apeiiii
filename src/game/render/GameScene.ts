@@ -1,10 +1,11 @@
 // Phaser 主场景 —— 纵向剖开塔体、多层并行战斗、镜头滚动、点击投放。
 import Phaser from 'phaser';
-import type { UnitState } from '../core/types';
+import type { DomainEvent, UnitState } from '../core/types';
 import { store } from '../../platform/store';
 import { registerPlaceholderTextures } from './textures';
 import { GENERATED_ASSETS } from './assets';
-import { regionOfFloor, REGION_NAMES, MONSTERS } from '../data/monsters';
+import { MONSTERS } from '../data/monsters';
+import { BACKGROUND_FLOORS, backgroundThemeForFloor, backgroundSegmentTop } from './backgrounds';
 import { HEROES } from '../data/heroes';
 import { BALANCE, isGateFloor } from '../data/economy';
 
@@ -12,25 +13,14 @@ const FLOOR_H = 120;
 const GROUND_OFFSET = 22;
 const NORMAL_DISPLAY_H = 56;
 const BOSS_DISPLAY_H = 104;
-const MIN_BATTLE_WIDTH = 760;
+const BATTLE_DESIGN_WIDTH = 760;
 const MANUAL_CAMERA_HOLD_MS = 5000;
 const WALK_STEP_DISTANCE = 18;
 const WALK_CONTACT_FRACTION = 0.6;
 const WALK_STOP_DELAY = 0.12;
 const ATTACK_POSE_SECONDS = 0.18;
-const REGION_FLOORS = 100;
 const OVERSCAN_FLOORS = 2;
-
-const REGION_BG: Record<number, number> = {
-  1: 0x24313b,
-  2: 0x2c1f1a,
-  3: 0x1f2b38,
-};
-const REGION_TEXTURE: Record<number, string> = {
-  1: 'bg_tower_ruins',
-  2: 'bg_tower_forge',
-  3: 'bg_tower_frost',
-};
+const FORMATION_LANE_OFFSETS = [0, -18, 12];
 
 function floorTopY(floorId: number): number {
   // 塔底固定为 0，解锁更高楼层时不挪动现有战场。
@@ -51,11 +41,12 @@ export class GameScene extends Phaser.Scene {
   private downX = 0;
   private downY = 0;
   private downTime = 0;
-  private downScrollX = 0;
   private downScrollY = 0;
   private dragging = false;
   private followAfter = 0;
   private selectedFloorMark: Phaser.GameObjects.Graphics | null = null;
+  private skillEffects = new Set<Phaser.GameObjects.GameObject>();
+  private skillCaption: Phaser.GameObjects.Text | null = null;
 
   constructor() {
     super('game');
@@ -69,7 +60,8 @@ export class GameScene extends Phaser.Scene {
 
   create() {
     registerPlaceholderTextures(this);
-    this.worldW = Math.max(MIN_BATTLE_WIDTH, this.scale.width);
+    this.worldW = Math.max(BATTLE_DESIGN_WIDTH, this.scale.width);
+    this.cameras.main.setZoom(this.scale.width / this.worldW);
     this.floorArt = this.add.graphics().setDepth(-5);
     this.selectedFloorMark = this.add.graphics().setDepth(20);
     this.updateTowerBounds();
@@ -77,8 +69,16 @@ export class GameScene extends Phaser.Scene {
     this.updateTower();
     this.setupInput();
     this.scale.on(Phaser.Scale.Events.RESIZE, this.resizeBattlefield, this);
+    const unsubscribeEvents = store.subscribeEvents((event) => this.showActiveSkill(event));
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       this.scale.off(Phaser.Scale.Events.RESIZE, this.resizeBattlefield, this);
+      unsubscribeEvents();
+      for (const effect of this.skillEffects) {
+        this.tweens.killTweensOf(effect);
+        effect.destroy();
+      }
+      this.skillEffects.clear();
+      this.skillCaption = null;
     });
   }
 
@@ -102,21 +102,20 @@ export class GameScene extends Phaser.Scene {
     let regionLabelsUsed = 0;
     for (let f = bottom; f <= top; f++) {
       const y = floorTopY(f) + FLOOR_H - GROUND_OFFSET;
-      const region = regionOfFloor(f);
+      const theme = backgroundThemeForFloor(f);
       const gate = isGateFloor(f);
-      const stone = region === 1 ? 0x526675 : region === 2 ? 0x6a5040 : 0x4a6a80;
-      g.fillStyle(stone, 1);
+      g.fillStyle(theme.platform, 1);
       g.fillRect(0, y, this.worldW, GROUND_OFFSET);
       g.fillStyle(0x17212b, 0.6);
       g.fillRect(0, y, this.worldW, 2);
       // 右端楼梯与左端门洞
-      g.fillStyle(0x9aa7b0, 0.45);
+      g.fillStyle(theme.accent, 0.45);
       g.fillRect(this.worldW - 24, y - FLOOR_H + GROUND_OFFSET, 16, FLOOR_H - GROUND_OFFSET * 2);
       if (gate) {
         g.fillStyle(0xd9ad64, 0.8);
         g.fillRect(12, y - FLOOR_H + GROUND_OFFSET + 12, 16, FLOOR_H - GROUND_OFFSET * 2 - 24);
       } else {
-        g.fillStyle(0x9aa7b0, 0.3);
+        g.fillStyle(theme.accent, 0.3);
         g.fillRect(12, y - FLOOR_H + GROUND_OFFSET + 18, 14, FLOOR_H - GROUND_OFFSET - 36);
       }
 
@@ -126,13 +125,15 @@ export class GameScene extends Phaser.Scene {
       }).setDepth(-4);
       this.floorLabels[index] = label;
       label.setPosition(labelX, floorTopY(f) + 6).setText(gate ? `◆ ${f} 层` : `${f} 层`)
-        .setColor(gate ? '#d9ad64' : '#8a97a3').setVisible(true);
-      if ((f - 1) % REGION_FLOORS === 0) {
+        .setColor(gate ? '#d9ad64' : '#8a97a3').setScale(1 / camera.zoom).setVisible(true);
+      if ((f - 1) % BACKGROUND_FLOORS === 0) {
         const name = this.regionLabels[regionLabelsUsed] ?? this.add.text(0, 0, '', {
           fontFamily: 'sans-serif', fontSize: '13px', color: '#e9e1cf', fontStyle: 'bold',
-        }).setDepth(-4).setAlpha(0.55).setOrigin(1, 0);
+          stroke: '#17212b', strokeThickness: 2,
+        }).setDepth(-4).setAlpha(0.85).setOrigin(1, 0);
         this.regionLabels[regionLabelsUsed++] = name;
-        name.setPosition(regionX, floorTopY(f) + 4).setText(REGION_NAMES[region]).setVisible(true);
+        name.setPosition(regionX, floorTopY(f) + 4).setText(theme.name)
+          .setScale(1 / camera.zoom).setVisible(true);
       }
     }
     for (const label of this.floorLabels.slice(top - bottom + 1)) label.setVisible(false);
@@ -141,14 +142,19 @@ export class GameScene extends Phaser.Scene {
   }
 
   private resizeBattlefield(gameSize: Phaser.Structs.Size) {
-    const width = Math.max(MIN_BATTLE_WIDTH, gameSize.width);
+    const camera = this.cameras.main;
+    const centerY = camera.midPoint.y;
+    const width = Math.max(BATTLE_DESIGN_WIDTH, gameSize.width);
     if (width !== this.worldW) {
       const ratio = width / this.worldW;
       this.worldW = width;
       for (const view of this.unitSprites.values()) view.container.x *= ratio;
-      this.renderedTop = 0;
     }
+    // 整层等比适配屏幕，保持角色比例，手机不再只显示战场的一部分。
+    camera.setZoom(gameSize.width / this.worldW);
+    this.renderedTop = 0;
     this.updateTowerBounds();
+    this.scrollCamera(centerY - camera.height / 2);
     this.updateTower();
   }
 
@@ -156,20 +162,20 @@ export class GameScene extends Phaser.Scene {
     const state = store.state;
     this.topFloor = state.mode === 'classic' ? BALANCE.floorsTotal : state.maxFloorUnlocked;
     const camera = this.cameras.main;
-    const topY = floorTopY(this.topFloor);
+    const topY = Math.min(floorTopY(this.topFloor), -camera.displayHeight);
     camera.setBounds(0, topY, this.worldW, -topY);
-    this.scrollCamera(camera.scrollX, camera.scrollY);
+    this.scrollCamera(camera.scrollY);
   }
 
   private updateBackdrops(bottom: number, top: number) {
     let layersUsed = 0;
     for (let floor = bottom; floor <= top;) {
-      const region = regionOfFloor(floor);
-      const regionTop = Math.ceil(floor / REGION_FLOORS) * REGION_FLOORS;
-      const last = Math.min(top, regionTop);
+      const theme = backgroundThemeForFloor(floor);
+      const segmentTop = backgroundSegmentTop(floor);
+      const last = Math.min(top, segmentTop);
       const y = floorTopY(last);
       const height = (last - floor + 1) * FLOOR_H;
-      const key = REGION_TEXTURE[region];
+      const key = theme.texture;
       const hasTile = this.textures.exists(key);
       const layer = this.backdrops[layersUsed] ?? {
         key: '',
@@ -180,17 +186,16 @@ export class GameScene extends Phaser.Scene {
       if (hasTile) {
         if (!layer.tile) layer.tile = this.add.tileSprite(0, y, this.worldW, height, key).setOrigin(0, 0).setDepth(-10);
         else if (layer.key !== key) layer.tile.setTexture(key);
-        if (layer.key !== key) {
-          const tileScale = (FLOOR_H * 2) / this.textures.get(key).getSourceImage().height;
-          layer.tile.setTileScale(tileScale, tileScale);
-          layer.key = key;
-        }
+        // 一张完整场景铺满楼层宽度，缩放后仍保持建筑比例。
+        const tileScale = this.worldW / this.textures.get(key).getSourceImage().width;
+        layer.tile.setTileScale(tileScale, tileScale);
+        layer.key = key;
         layer.tile.setPosition(0, y).setSize(this.worldW, height).setVisible(true);
-        layer.tile.tilePositionY = (y - floorTopY(regionTop)) / layer.tile.tileScaleY;
+        layer.tile.tilePositionY = (y - floorTopY(segmentTop)) / layer.tile.tileScaleY;
       } else {
         layer.tile?.setVisible(false);
       }
-      layer.shade.setFillStyle(hasTile ? 0x0a1116 : REGION_BG[region], hasTile ? 0.42 : 1)
+      layer.shade.setFillStyle(hasTile ? 0x0a1116 : theme.background, hasTile ? 0.32 : 1)
         .setPosition(0, y).setSize(this.worldW, height).setVisible(true);
       floor = last + 1;
     }
@@ -200,15 +205,16 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
-  private scrollCamera(x: number, y: number) {
+  private scrollCamera(y: number) {
     const camera = this.cameras.main;
-    camera.setScroll(camera.clampX(x), camera.clampY(y));
+    // Phaser 的 scroll 使用未缩放视口尺寸；居中后左右边界恰好贴合画布。
+    camera.setScroll((this.worldW - camera.width) / 2, camera.clampY(y));
   }
 
   private scrollToFloor(floor: number) {
     const camera = this.cameras.main;
     const y = floorTopY(Phaser.Math.Clamp(floor, 1, this.topFloor)) + (FLOOR_H - camera.height) / 2;
-    this.scrollCamera(camera.scrollX, y);
+    this.scrollCamera(y);
   }
 
   focusFloor(floor: number) {
@@ -223,7 +229,6 @@ export class GameScene extends Phaser.Scene {
       this.downX = p.x;
       this.downY = p.y;
       this.downTime = performance.now();
-      this.downScrollX = this.cameras.main.scrollX;
       this.downScrollY = this.cameras.main.scrollY;
       this.dragging = false;
     });
@@ -234,7 +239,7 @@ export class GameScene extends Phaser.Scene {
       if (Math.abs(dx) > 10 || Math.abs(dy) > 10) this.dragging = true;
       if (this.dragging) {
         const camera = this.cameras.main;
-        this.scrollCamera(this.downScrollX - dx / camera.zoomX, this.downScrollY - dy / camera.zoomY);
+        this.scrollCamera(this.downScrollY - dy / camera.zoomY);
       }
     });
     this.input.on('pointerup', (p: Phaser.Input.Pointer) => {
@@ -244,9 +249,9 @@ export class GameScene extends Phaser.Scene {
       this.endDrag();
     });
     this.input.on('pointerupoutside', () => this.endDrag());
-    this.input.on('wheel', (_p: unknown, _o: unknown[], dx: number, dy: number) => {
+    this.input.on('wheel', (_p: unknown, _o: unknown[], _dx: number, dy: number) => {
       const camera = this.cameras.main;
-      this.scrollCamera(camera.scrollX + dx / camera.zoomX, camera.scrollY + dy / camera.zoomY);
+      this.scrollCamera(camera.scrollY + dy / camera.zoomY);
       this.followAfter = performance.now() + MANUAL_CAMERA_HOLD_MS;
     });
   }
@@ -261,7 +266,6 @@ export class GameScene extends Phaser.Scene {
     const floorId = -Math.floor(wp.y / FLOOR_H);
     if (floorId < 1 || floorId > this.topFloor) return;
     store.dispatch('summon', floorId);
-    store.dispatch('selectFloor', floorId);
   }
 
   update(_time: number, delta: number) {
@@ -278,6 +282,7 @@ export class GameScene extends Phaser.Scene {
     this.updateTower();
     this.syncUnits();
     this.updateSelectedFloorMark();
+    this.positionGlobalSkillCaption();
   }
 
   private syncUnits() {
@@ -314,9 +319,12 @@ export class GameScene extends Phaser.Scene {
     const passB = `${u.templateId}_walk_pass_b`;
     const attack = `${u.templateId}_attack`;
 
-    const container = this.add.container((u.x / 1000) * this.worldW, floorTopY(u.floorId) + FLOOR_H - GROUND_OFFSET);
-    container.setDepth(10 + (u.team === 'ally' ? 5 : 0));
+    const laneOffset = FORMATION_LANE_OFFSETS[store.sim.formationLane(u) ?? 0] ?? 0;
+    const container = this.add.container((u.x / 1000) * this.worldW, floorTopY(u.floorId) + FLOOR_H - GROUND_OFFSET + laneOffset);
+    container.setDepth(10 + (u.team === 'ally' ? 5 : 0) + laneOffset / 100);
 
+    const boostMark = this.add.graphics();
+    const speedMark = this.add.graphics();
     const body = this.add.image(0, 0, idleTexture).setOrigin(0.5, 1);
     const hpW = isBoss ? 78 : u.kind === 'hero' ? 38 : 28;
     const hpBg = this.add.rectangle(0, -displayH - 8, hpW, 5, 0x000000, 0.6).setOrigin(0.5, 0.5);
@@ -325,7 +333,7 @@ export class GameScene extends Phaser.Scene {
     shieldFill.setVisible(false);
     const cdCircle = this.add.graphics();
 
-    container.add([body, hpBg, hpFill, shieldFill, cdCircle]);
+    container.add([boostMark, body, speedMark, hpBg, hpFill, shieldFill, cdCircle]);
 
     let label: Phaser.GameObjects.Text | null = null;
     if (u.kind === 'hero') {
@@ -335,7 +343,7 @@ export class GameScene extends Phaser.Scene {
       container.add(label);
     }
     return {
-      container, body, hpFill, shieldFill, hpW, cdCircle, label, displayH,
+      container, body, boostMark, speedMark, hpFill, shieldFill, hpW, cdCircle, label, displayH,
       unit: u,
       idleTexture,
       walkTextures: this.textures.exists(walkA) && this.textures.exists(walkB)
@@ -348,6 +356,7 @@ export class GameScene extends Phaser.Scene {
       attackUntil: -1, prevAttackCd: u.attackCooldown, prevHp: u.hp, hitUntil: -1,
       lastMoveAt: -1, walkDistance: 0,
       prevFloor: u.floorId,
+      laneOffset,
     };
   }
 
@@ -357,6 +366,9 @@ export class GameScene extends Phaser.Scene {
     // 楼层切换时直接定位，不平滑滑动，避免“从右滑到左”的错觉
     const changedFloor = u.floorId !== view.prevFloor;
     const displayX = changedFloor ? targetX : Phaser.Math.Linear(view.container.x, targetX, 0.35);
+    const laneOffset = FORMATION_LANE_OFFSETS[store.sim.formationLane(u) ?? 0] ?? 0;
+    // 错位只改变画面纵深，实际横坐标与攻击距离仍由模拟决定。
+    view.laneOffset = changedFloor ? laneOffset : Phaser.Math.Linear(view.laneOffset, laneOffset, 0.2);
     view.prevFloor = u.floorId;
 
     // 飞行单位悬浮偏移
@@ -371,7 +383,8 @@ export class GameScene extends Phaser.Scene {
     } else if (forwardDistance > 0.01) {
       if (view.lastMoveAt < 0) view.walkDistance = 0;
       // 分离碰撞产生的瞬间位移最多计入两次模拟步的行走距离。
-      view.walkDistance += Math.min(forwardDistance, u.moveSpeed * 0.1);
+      const moveBoost = this.hasRapidAdvance(u) ? 1 + BALANCE.skillRapidAdvance.moveBoost : 1;
+      view.walkDistance += Math.min(forwardDistance, u.moveSpeed * moveBoost * 0.1);
       view.lastMoveAt = now;
     } else if (now - view.lastMoveAt >= WALK_STOP_DELAY) {
       view.lastMoveAt = -1;
@@ -421,7 +434,8 @@ export class GameScene extends Phaser.Scene {
       bodyY = Math.sin(now * 3 + u.id) * 1.5;
     }
 
-    view.container.setPosition(displayX, y + floatOffset);
+    view.container.setPosition(displayX, y + view.laneOffset + floatOffset);
+    view.container.setDepth(10 + (u.team === 'ally' ? 5 : 0) + view.laneOffset / 100);
     if (view.body.texture.key !== texture) view.body.setTexture(texture);
     view.body.setFlipX(u.facing < 0 && (view.walkTextures !== null || view.attackTexture !== null));
     // 动作帧与待机图分辨率不同，按同一显示高度绘制。
@@ -445,6 +459,9 @@ export class GameScene extends Phaser.Scene {
       view.shieldFill.setVisible(false);
     }
 
+    this.updateBoostMark(view, u, now);
+    this.updateSpeedMark(view, u, now, isMoving);
+
     view.cdCircle.clear();
     if ((u.kind === 'hero' || u.kind === 'boss') && u.skillCooldown > 0) {
       const cfg = u.kind === 'hero' ? HEROES[u.templateId] : null;
@@ -465,11 +482,184 @@ export class GameScene extends Phaser.Scene {
     else if (u.burnUntil > store.state.time) view.body.setTint(0xd9675d);
     else view.body.clearTint();
 
-    if (view.label) view.label.setText(`${HEROES[u.templateId]?.shortName ?? ''} Lv${u.heroLevel}`);
+    if (view.label) {
+      const zoom = this.cameras.main.zoom;
+      view.label.setText(`${HEROES[u.templateId]?.shortName ?? ''} Lv${u.heroLevel}`)
+        .setScale(1 / zoom).setY(-view.displayH - 8 - 8 / zoom);
+    }
+  }
+
+  private updateBoostMark(view: UnitView, unit: UnitState, now: number) {
+    const mark = view.boostMark.clear();
+    if (unit.phase === 'dead' || unit.atkBoostUntil <= store.state.time || unit.atkBoostFactor <= 0) return;
+    const size = Math.min(1.8, 1 / this.cameras.main.zoom);
+    const pulse = store.state.settings.reduceFx ? 0.75 : 0.72 + Math.sin(now * 3) * 0.16;
+    mark.lineStyle(2 * size, 0xf5ce70, pulse);
+    mark.strokeEllipse(0, -2, 42 * size, 12 * size);
+    // 攻击提升持续期间保留双箭头，减弱特效时也能识别增益。
+    const x = 21 * size;
+    const y = -view.displayH * 0.65;
+    for (const offset of [0, 7 * size]) {
+      mark.beginPath();
+      mark.moveTo(x - 4 * size, y + offset);
+      mark.lineTo(x, y - 4 * size + offset);
+      mark.lineTo(x + 4 * size, y + offset);
+      mark.strokePath();
+    }
+  }
+
+  private hasRapidAdvance(unit: UnitState): boolean {
+    return unit.kind === 'hero' && unit.team === 'ally' && unit.phase !== 'dead' && unit.hp > 0
+      && store.state.activeSkills.rapidAdvanceUntil > store.state.time;
+  }
+
+  private updateSpeedMark(view: UnitView, unit: UnitState, now: number, moving: boolean) {
+    const mark = view.speedMark.clear();
+    if (!this.hasRapidAdvance(unit)) return;
+    const size = Math.min(1.8, 1 / this.cameras.main.zoom);
+    const direction = unit.facing < 0 ? -1 : 1;
+    // 每帧由全局状态重绘，换层、新部署和复活的英雄都能正确显示/结束加速。
+    mark.lineStyle(2 * size, 0x89e8ee, 0.95);
+    for (const offset of [0, 7 * size]) {
+      const x = direction * (21 * size + offset);
+      mark.beginPath();
+      mark.moveTo(x - direction * 4 * size, -17 * size);
+      mark.lineTo(x, -13 * size);
+      mark.lineTo(x - direction * 4 * size, -9 * size);
+      mark.strokePath();
+    }
+    if (store.state.settings.reduceFx || !moving) return;
+    for (let line = 0; line < 3; line++) {
+      const travel = (now * 2 + unit.id * 0.17 + line / 3) % 1;
+      const endX = -direction * (18 + travel * 12) * size;
+      const y = -14 - line * 9;
+      mark.lineStyle(1.5 * size, 0x89e8ee, 0.7 * (1 - travel));
+      mark.lineBetween(endX, y, endX - direction * (10 + line * 3) * size, y);
+    }
+  }
+
+  private positionGlobalSkillCaption() {
+    if (!this.skillCaption || this.skillCaption.scrollFactorY !== 0) return;
+    const camera = this.cameras.main;
+    // 固定在视口顶部，摄像机缩放/滚动均不会把全局提示带到某个楼层。
+    this.skillCaption.setPosition(camera.width / 2,
+      camera.height / 2 - camera.displayHeight / 2 + 16 / camera.zoom).setScale(1 / camera.zoom);
+  }
+
+  private showSkillCaption(name: string, color: string, floorId?: number) {
+    if (this.skillCaption) {
+      this.tweens.killTweensOf(this.skillCaption);
+      this.skillEffects.delete(this.skillCaption);
+      this.skillCaption.destroy();
+    }
+    const zoom = this.cameras.main.zoom;
+    const caption = this.add.text(this.worldW / 2, floorId === undefined ? 0 : floorTopY(floorId) + 8 / zoom, name, {
+      fontFamily: 'sans-serif', fontSize: '13px', fontStyle: 'bold', color,
+      stroke: '#14212b', strokeThickness: 4,
+    }).setOrigin(0.5, 0).setScale(1 / zoom).setDepth(25);
+    this.skillCaption = caption;
+    if (floorId === undefined) {
+      caption.setScrollFactor(0);
+      this.positionGlobalSkillCaption();
+    }
+    this.animateSkillEffect(caption, { alpha: 0, delay: 1100, duration: 500 });
+  }
+
+  private animateSkillEffect(
+    effect: Phaser.GameObjects.GameObject,
+    config: Omit<Phaser.Types.Tweens.TweenBuilderConfig, 'targets' | 'onComplete'>,
+  ) {
+    this.skillEffects.add(effect);
+    this.tweens.add({
+      ...config,
+      targets: effect,
+      onComplete: () => {
+        this.skillEffects.delete(effect);
+        if (this.skillCaption === effect) this.skillCaption = null;
+        effect.destroy();
+      },
+    });
+  }
+
+  private showActiveSkill(event: DomainEvent) {
+    if (event.type !== 'active_skill') return;
+    const skill = event.skill;
+    if (skill === 'rapidAdvance') {
+      this.showSkillCaption(`加速前进 · 全体英雄移速 +${Math.round(BALANCE.skillRapidAdvance.moveBoost * 100)}%`, '#adf4f8');
+      return;
+    }
+    if (typeof event.floorId !== 'number') return;
+    if (skill !== 'battleCry' && skill !== 'lifeEcho' && skill !== 'crystalRain') return;
+    this.focusFloor(event.floorId);
+    const settings = store.state.settings;
+    const zoom = this.cameras.main.zoom;
+    const size = Math.min(2, 1 / zoom);
+    const floorY = floorTopY(event.floorId);
+    const groundY = floorY + FLOOR_H - GROUND_OFFSET;
+    const color = skill === 'battleCry' ? 0xf5ce70 : skill === 'lifeEcho' ? 0x76dfae : 0x9ccaf8;
+    const name = skill === 'battleCry' ? `战意鼓舞 · 攻击 +${Math.round(BALANCE.skillBattleCry.atkBoost * 100)}%`
+      : skill === 'lifeEcho' ? '生命回响 · 生命恢复' : '晶雨打击 · 全层打击';
+    const wash = this.add.rectangle(this.worldW / 2, floorY + FLOOR_H / 2,
+      this.worldW - 8, FLOOR_H - 4, color, settings.reduceFx ? 0.05 : 0.14)
+      .setStrokeStyle(2 * size, color, 0.8).setDepth(21);
+    this.animateSkillEffect(wash, { alpha: 0, duration: settings.reduceFx ? 850 : 1400 });
+    this.showSkillCaption(name, skill === 'battleCry' ? '#ffe1a0' : skill === 'lifeEcho' ? '#a9ffd2' : '#c1e6ff', event.floorId);
+
+    if (!Array.isArray(event.targets)) return;
+    const targets = event.targets.filter((target): target is SkillEffectTarget =>
+      typeof target === 'object' && target !== null
+      && typeof target.unitId === 'number' && typeof target.x === 'number'
+      && Number.isFinite(target.x) && typeof target.amount === 'number');
+    // 密集队伍只限制装饰数量，技能效果与结算不受影响。
+    for (const [index, target] of targets.slice(0, 24).entries()) {
+      const unit = store.state.units.find((u) => u.id === target.unitId);
+      const lane = unit ? FORMATION_LANE_OFFSETS[store.sim.formationLane(unit) ?? 0] ?? 0 : 0;
+      const x = Phaser.Math.Clamp(target.x, 0, 1) * this.worldW;
+      const y = groundY + lane;
+      if (!settings.reduceFx) {
+        if (skill === 'crystalRain') {
+          const crystal = this.add.graphics().setPosition(x - 16, floorY + 10).setDepth(23);
+          crystal.fillStyle(0xd8f2ff, 1);
+          crystal.fillPoints([
+            new Phaser.Geom.Point(0, -10 * size), new Phaser.Geom.Point(4 * size, 0),
+            new Phaser.Geom.Point(0, 10 * size), new Phaser.Geom.Point(-4 * size, 0),
+          ], true);
+          crystal.lineStyle(2 * size, color, 0.55);
+          crystal.lineBetween(-5 * size, -24 * size, 0, -12 * size);
+          this.animateSkillEffect(crystal, {
+            x, y: y - 14, alpha: 0, delay: index % 4 * 55, duration: 450, ease: 'Quad.easeIn',
+          });
+          const impact = this.add.ellipse(x, y - 14, 16 * size, 24 * size, color, 0.55).setDepth(22).setAlpha(0);
+          this.animateSkillEffect(impact, {
+            alpha: { from: 0.7, to: 0 }, scaleX: 2, scaleY: 1.6,
+            delay: 330 + index % 4 * 55, duration: 420,
+          });
+        } else {
+          const ring = this.add.ellipse(x, y - 4, 44 * size, 15 * size)
+            .setStrokeStyle(2 * size, color, 0.95).setDepth(22);
+          this.animateSkillEffect(ring, { scaleX: 1.6, scaleY: 1.6, alpha: 0, duration: 900 });
+          if (skill === 'lifeEcho') {
+            const cross = this.add.graphics().setPosition(x, y - 24).setDepth(24);
+            cross.fillStyle(color, 0.95);
+            cross.fillRect(-2 * size, -7 * size, 4 * size, 14 * size);
+            cross.fillRect(-7 * size, -2 * size, 14 * size, 4 * size);
+            this.animateSkillEffect(cross, { y: y - 58, alpha: 0, duration: 1100, ease: 'Sine.easeOut' });
+          }
+        }
+      }
+      if (!settings.reduceNumbers && target.amount > 0) {
+        const amount = Math.round(target.amount).toLocaleString();
+        const number = this.add.text(x, y - 46, `${skill === 'lifeEcho' ? '+' : '−'}${amount}`, {
+          fontFamily: 'sans-serif', fontSize: '14px', fontStyle: 'bold',
+          color: skill === 'lifeEcho' ? '#a9ffd2' : '#d4efff', stroke: '#14212b', strokeThickness: 3,
+        }).setOrigin(0.5, 1).setScale(1 / zoom).setDepth(26);
+        this.animateSkillEffect(number, { y: y - 46 - 24 / zoom, alpha: 0, duration: 1400 });
+      }
+    }
   }
 
   private updateSelectedFloorMark() {
-    const f = store.state.selectedFloor;
+    const f = store.sim.getActiveSkillTargetFloor();
     const g = this.selectedFloorMark?.clear();
     if (!g || !f || f < this.renderedBottom || f > this.renderedTop) return;
     g.lineStyle(2, 0x54cfb0, 0.8);
@@ -494,9 +684,14 @@ export class GameScene extends Phaser.Scene {
     else if (distance > Math.max(FLOOR_H / 2, camera.displayHeight / 2 - FLOOR_H)) {
       scrollY = Phaser.Math.Linear(scrollY, targetY, 0.05);
     }
-    const targetX = camera.clampX(front.x * this.worldW / 1000 - camera.width / 2 + camera.displayWidth * 0.1);
-    this.scrollCamera(Phaser.Math.Linear(camera.scrollX, targetX, 0.08), scrollY);
+    this.scrollCamera(scrollY);
   }
+}
+
+interface SkillEffectTarget {
+  unitId: number;
+  x: number;
+  amount: number;
 }
 
 interface RegionBackdrop {
@@ -508,6 +703,8 @@ interface RegionBackdrop {
 interface UnitView {
   container: Phaser.GameObjects.Container;
   body: Phaser.GameObjects.Image;
+  boostMark: Phaser.GameObjects.Graphics;
+  speedMark: Phaser.GameObjects.Graphics;
   hpFill: Phaser.GameObjects.Rectangle;
   shieldFill: Phaser.GameObjects.Rectangle;
   hpW: number;
@@ -526,4 +723,5 @@ interface UnitView {
   lastMoveAt: number;
   walkDistance: number;
   prevFloor: number;
+  laneOffset: number;
 }

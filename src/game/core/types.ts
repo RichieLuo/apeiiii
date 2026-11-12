@@ -16,6 +16,7 @@ export interface UnitState {
   floorId: number;
   team: Team;
   x: number; // 逻辑横坐标（世界坐标，窗口尺寸不影响结果）
+  combatLane?: number; // 友军三路编队 0..2；旧存档自动补齐
   maxHp: number;
   hp: number;
   shield: number; // 当前护盾量
@@ -135,6 +136,8 @@ export interface ActiveSkillState {
   battleCryCooldown: number;
   lifeEchoCooldown: number;
   crystalRainCooldown: number;
+  rapidAdvanceCooldown: number;
+  rapidAdvanceUntil: number; // 全局英雄行进加速结束时刻（模拟秒）
 }
 
 // 资源

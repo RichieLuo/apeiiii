@@ -3,10 +3,10 @@ import { useGame } from './useGame';
 import { store } from '../platform/store';
 import { HEROES, HERO_ORDER } from '../game/data/heroes';
 import { BALANCE, heroUpgradeCost, squireUpgradeCost } from '../game/data/economy';
-import { squireStatsOf, isFloorCleared } from '../game/core/state';
-import type { GameMode, GemType } from '../game/core/types';
+import { squireStatsOf, isFloorCleared, canAscendHero } from '../game/core/state';
+import type { EquipmentInstance, EquipmentSlot, GameMode, GemType } from '../game/core/types';
 import { GEMS, GEM_ORDER, gemEffectValue } from '../game/data/gems';
-import { RARITY_NAMES, RARITY_COLORS } from '../game/data/equipment';
+import { EQUIPMENT_TEMPLATES, RARITY_NAMES, RARITY_COLORS, RARITY_ORDER } from '../game/data/equipment';
 import { QUESTS, ACHIEVEMENTS } from '../game/data/quests';
 import { exportSave, validateImport } from '../platform/db';
 import { CloudError } from '../platform/cloud';
@@ -187,7 +187,7 @@ export function HeroPanel({ heroId }: { heroId: string }) {
         <button
           className="btn"
           onClick={() => store.dispatch('ascendHero', heroId)}
-          disabled={shards < starCost || hero.star >= BALANCE.heroMaxStar}
+          disabled={!canAscendHero(snap.state, heroId)}
         >
           <Icon name="spark" />升星（{hero.star >= BALANCE.heroMaxStar ? '已满' : `${starCost} 英魂`}）
         </button>
@@ -220,7 +220,7 @@ export function GemPanel() {
   const board = snap.state.gemBoard;
   const unlockedSlots = BALANCE.gemBoardInitialSlots + BALANCE.gemBoardUnlockFloors.filter((f) => snap.state.highestClearedFloor >= f).length;
   const [selGem, setSelGem] = useState<string | null>(null);
-  const backpack = useRef<HTMLSelectElement>(null);
+  const backpack = useRef<HTMLDivElement>(null);
 
   const emptySlot = board.findIndex((gem, i) => !gem && i < unlockedSlots);
   const selectedGem = snap.state.gems.find((gem) => gem.id === selGem);
@@ -264,15 +264,34 @@ export function GemPanel() {
       </div>
 
       <h2 className="panel-title" style={{ fontSize: 15, marginTop: 16 }}><Icon name="pack" />背包</h2>
+      <div ref={backpack} className="gem-backpack" role="group" aria-label="宝石背包" tabIndex={-1}>
+        {snap.state.gems.length === 0 ? (
+          <p className="gem-backpack-empty">背包暂无宝石</p>
+        ) : snap.state.gems.map((gem) => {
+          const config = GEMS[gem.type];
+          const selected = selectedGem?.id === gem.id;
+          return (
+            <button
+              type="button"
+              key={gem.id}
+              className={`gem-backpack-item${selected ? ' selected' : ''}`}
+              aria-label={`${config.name} Lv${gem.level}${gem.locked ? '（已锁定）' : ''}`}
+              aria-pressed={selected}
+              onClick={() => setSelGem(selected ? null : gem.id)}
+            >
+              <GemIcon type={gem.type} />
+              <span>{config.name}</span>
+              <span className="gem-backpack-level">Lv{gem.level}</span>
+              {gem.locked && <span className="gem-backpack-lock" aria-hidden="true"><Icon name="lock" /></span>}
+              {selected && <span className="gem-backpack-check" aria-hidden="true"><Icon name="check" /></span>}
+            </button>
+          );
+        })}
+      </div>
       <div className="row">
-        <select ref={backpack} aria-label="选择背包宝石" value={selectedGem?.id ?? ''} onChange={(e) => setSelGem(e.target.value || null)} style={{ background: '#233342', color: '#e9e1cf', border: '1px solid #3a4a58', borderRadius: 6 }}>
-          <option value="">选择宝石</option>
-          {snap.state.gems.map((g) => (
-            <option key={g.id} value={g.id}>
-              {GEMS[g.type].name} Lv{g.level}
-            </option>
-          ))}
-        </select>
+        <span className="gem-backpack-hint" role="status">
+          {emptySlot < 0 ? '宝石槽已满，请先卸下一颗宝石' : selectedGem ? `已选择 ${GEMS[selectedGem.type].name} Lv${selectedGem.level}` : '点击宝石方格选择'}
+        </span>
         <button
           className="btn"
           disabled={!selectedGem || emptySlot < 0}
@@ -336,37 +355,120 @@ const EQUIPMENT_SLOTS = {
   trinket: { name: '饰品', icon: 'amulet' },
 } as const;
 
-export function EquipmentPanel({ heroId }: { heroId: string }) {
+const EQUIPMENT_STATS = [
+  { key: 'atkBonus', name: '攻击', icon: 'sword' },
+  { key: 'hpBonus', name: '生命', icon: 'heart' },
+  { key: 'defBonus', name: '防御', icon: 'shield' },
+] as const;
+
+function equipmentName(equipment: EquipmentInstance) {
+  return EQUIPMENT_TEMPLATES[equipment.templateId]?.name
+    ?? `${RARITY_NAMES[equipment.rarity]}${EQUIPMENT_SLOTS[equipment.slot].name}`;
+}
+
+function EquipmentBonuses({ equipment }: { equipment: EquipmentInstance }) {
+  return <span className="equipment-stats">
+    {EQUIPMENT_STATS.filter(({ key }) => equipment[key] !== 0).map(({ key, name, icon }) => (
+      <span className="panel-label" key={key}><Icon name={icon} />{name} +{equipment[key]}</span>
+    ))}
+  </span>;
+}
+
+export function EquipmentPanel({ heroId, onSelectHero }: { heroId: string; onSelectHero: (heroId: string) => void }) {
   const snap = useGame();
+  const [selectedSlot, setSelectedSlot] = useState<EquipmentSlot>('weapon');
+  const [message, setMessage] = useState('');
   const list = snap.state.equipment;
-  const hero = snap.state.heroes[heroId];
-  if (!hero) return null;
+  const ownedHeroes = HERO_ORDER.filter((id) => snap.state.heroes[id].owned);
+  const selectedHeroId = ownedHeroes.find((id) => id === heroId) ?? ownedHeroes[0];
+  const hero = snap.state.heroes[selectedHeroId];
+  if (!hero) return <div><h2 className="panel-title"><Icon name="armor" />英雄装备</h2><p className="empty">先招募一名英雄，即可为其穿戴装备。</p></div>;
+  const heroName = HEROES[selectedHeroId].shortName;
+  const currentEquipment = list.find((equipment) => equipment.id === hero[selectedSlot]);
+  const available = list.filter((equipment) => equipment.slot === selectedSlot).sort((a, b) =>
+    Number(b.id === hero[selectedSlot]) - Number(a.id === hero[selectedSlot])
+    || RARITY_ORDER.indexOf(b.rarity) - RARITY_ORDER.indexOf(a.rarity));
+
+  const equip = (equipment: EquipmentInstance) => {
+    const previousOwner = equipment.equippedBy && equipment.equippedBy !== selectedHeroId
+      ? HEROES[equipment.equippedBy]?.shortName : null;
+    const result = store.dispatch('equipToHero', selectedHeroId, equipment.id);
+    setMessage(result.ok
+      ? `${heroName}已穿戴${equipmentName(equipment)}${previousOwner ? `，已从${previousOwner}身上取下` : ''}${currentEquipment ? '，原装备已放回背包' : ''}。`
+      : result.reason ?? '暂时无法穿戴');
+  };
+
   return (
-    <div>
-      <h2 className="panel-title"><Icon name="armor" />装备（{HEROES[heroId].shortName}）</h2>
-      <div className="row" style={{ fontSize: 12, color: '#9aa7b0' }}>
-        简化装备：武器 / 护具 / 饰品三槽，提供攻击、生命或防御加成。
+    <div className="equipment-panel">
+      <h2 className="panel-title"><Icon name="armor" />英雄装备</h2>
+      <div className="equipment-hero-picker">
+        <label htmlFor="equipment-hero">为谁穿戴</label>
+        <select id="equipment-hero" value={selectedHeroId} onChange={(event) => {
+          onSelectHero(event.target.value);
+          setMessage('');
+        }}>
+          {ownedHeroes.map((id) => <option key={id} value={id}>{HEROES[id].shortName}</option>)}
+        </select>
+        <HeroRoleBadge melee={HEROES[selectedHeroId].melee} />
       </div>
-      {list.map((eq) => {
-        const slot = EQUIPMENT_SLOTS[eq.slot];
-        const equipped = hero[eq.slot] === eq.id;
-        return (
-          <div className="row" key={eq.id}>
-            <span className="panel-label" style={{ color: RARITY_COLORS[eq.rarity] }}>
-              <Icon name={slot.icon} />{RARITY_NAMES[eq.rarity]}{slot.name}
-            </span>
-            <span className="equipment-stats">
-              <span className="panel-label"><Icon name="sword" />攻+{eq.atkBonus}</span>
-              <span className="panel-label"><Icon name="heart" />命+{eq.hpBonus}</span>
-              <span className="panel-label"><Icon name="shield" />防+{eq.defBonus}</span>
-            </span>
-            <button className="btn ghost" disabled={equipped || !hero.owned} onClick={() => store.equipTo(heroId, eq)}>
-              <Icon name={equipped ? 'check' : 'plus'} />{equipped ? '已装备' : '装备'}
+      <p className="equipment-help">选择下方槽位，再挑选装备。每件装备只能由一名英雄穿戴，更换后旧装备回到背包。</p>
+      <h3 className="equipment-section-title">{heroName}当前穿戴</h3>
+      <div className="equipment-slots" role="group" aria-label="选择装备槽位">
+        {(Object.keys(EQUIPMENT_SLOTS) as EquipmentSlot[]).map((key) => {
+          const slot = EQUIPMENT_SLOTS[key];
+          const equipment = list.find((item) => item.id === hero[key]);
+          const count = list.filter((item) => item.slot === key).length;
+          return <button type="button" className="equipment-slot" key={key} aria-pressed={selectedSlot === key}
+            aria-label={`${slot.name}：${equipment ? equipmentName(equipment) : '未穿戴'}，共 ${count} 件，查看可选${slot.name}`}
+            onClick={() => { setSelectedSlot(key); setMessage(''); }}>
+            <span className="panel-label"><Icon name={slot.icon} />{slot.name}</span>
+            <strong style={{ color: equipment ? RARITY_COLORS[equipment.rarity] : undefined }}>{equipment ? equipmentName(equipment) : '未穿戴'}</strong>
+            {equipment && <EquipmentBonuses equipment={equipment} />}
+            <span className="equipment-slot-count">{count > 0 ? `共 ${count} 件` : '暂无装备'}</span>
+          </button>;
+        })}
+      </div>
+      <p className="equipment-feedback" role="status">{message}</p>
+      <div className="equipment-inventory-heading">
+        <h3 className="equipment-section-title">{EQUIPMENT_SLOTS[selectedSlot].name}列表</h3>
+        <span>共 {available.length} 件</span>
+      </div>
+      {available.length > 0 && <p className="equipment-help">下方显示装备加成，以及换装后相对当前{EQUIPMENT_SLOTS[selectedSlot].name}的加成变化。</p>}
+      <div className="equipment-inventory">
+        {available.map((equipment) => {
+          const equipped = hero[selectedSlot] === equipment.id;
+          const owner = equipment.equippedBy ? HEROES[equipment.equippedBy]?.shortName : null;
+          const changes = EQUIPMENT_STATS.map((stat) => ({ ...stat, delta: equipment[stat.key] - (currentEquipment?.[stat.key] ?? 0) }))
+            .filter(({ delta }) => delta !== 0);
+          return <div className={`equipment-item${equipped ? ' is-equipped' : ''}`} key={equipment.id}>
+            <div className="equipment-item-copy">
+              <div className="equipment-item-heading">
+                <strong className="panel-label" style={{ color: RARITY_COLORS[equipment.rarity] }}>
+                  <Icon name={EQUIPMENT_SLOTS[equipment.slot].icon} />{equipmentName(equipment)}
+                </strong>
+                <span className={`equipment-owner${equipped ? ' is-current' : ''}`}>{equipped ? '当前穿戴' : owner ? `${owner}穿戴中` : '背包中'}</span>
+              </div>
+              <EquipmentBonuses equipment={equipment} />
+              {!equipped && <div className="equipment-comparison">
+                <span>换装加成变化</span>
+                {changes.length === 0 ? <span>属性相同</span> : changes.map(({ key, name, delta }) => (
+                  <span className={delta > 0 ? 'increase' : 'decrease'} key={key}>{name} {delta > 0 ? '+' : ''}{delta}</span>
+                ))}
+              </div>}
+            </div>
+            <button type="button" className={`btn${equipped ? ' ghost' : ''}`} disabled={equipped}
+              aria-label={equipped ? `${equipmentName(equipment)}已由${heroName}穿戴` : `${owner ? `从${owner}转给` : '为'}${heroName}穿戴${equipmentName(equipment)}`}
+              onClick={() => equip(equipment)}>
+              <Icon name={equipped ? 'check' : 'plus'} />{equipped ? '已穿戴' : owner ? `转给${heroName}` : currentEquipment ? '更换' : '穿戴'}
             </button>
-          </div>
-        );
-      })}
-      {list.length === 0 && <div className="empty"><span className="panel-label"><Icon name="pack" />暂无装备，通关关口可获得</span></div>}
+          </div>;
+        })}
+      </div>
+      {available.length === 0 && <div className="equipment-empty">
+        <Icon name="pack" />
+        <strong>还没有{EQUIPMENT_SLOTS[selectedSlot].name}</strong>
+        <span>首次通关每 10 层的关口，会随机获得一件武器、护具或饰品。</span>
+      </div>}
     </div>
   );
 }

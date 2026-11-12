@@ -76,7 +76,10 @@ export function createNewGame(seed?: number): GameState {
     gems: [],
     gemBoard: new Array(BALANCE.gemBoardSlots).fill(null),
     equipment: [],
-    activeSkills: { battleCryCooldown: 0, lifeEchoCooldown: 0, crystalRainCooldown: 0 },
+    activeSkills: {
+      battleCryCooldown: 0, lifeEchoCooldown: 0, crystalRainCooldown: 0,
+      rapidAdvanceCooldown: 0, rapidAdvanceUntil: 0,
+    },
     floors: {},
     units: [],
     maxFloorUnlocked: BALANCE.floorsPerGate,
@@ -149,8 +152,14 @@ export function normalizeGameState(state: GameState): GameState {
     || state.highestClearedFloor > BALANCE.floorsTotal) state.mode = 'endless';
   state.contentVersion = Math.max(state.contentVersion ?? 1, CONTENT_VERSION);
   for (const id of HERO_ORDER) state.heroes[id] ??= makeHeroState(id);
+  normalizeEquipmentOwnership(state);
   state.heroOrder = normalizeHeroOrder(state.heroOrder);
   if (!Number.isFinite(state.heroDeployAt) || state.heroDeployAt < 0) state.heroDeployAt = 0;
+  const active = state.activeSkills;
+  active.rapidAdvanceCooldown = Number.isFinite(active.rapidAdvanceCooldown) && active.rapidAdvanceCooldown >= 0
+    ? Math.min(active.rapidAdvanceCooldown, BALANCE.skillRapidAdvance.cooldown) : 0;
+  active.rapidAdvanceUntil = Number.isFinite(active.rapidAdvanceUntil) && active.rapidAdvanceUntil > state.time
+    ? Math.min(active.rapidAdvanceUntil, state.time + BALANCE.skillRapidAdvance.duration) : 0;
   if (state.lastHeroDeployed == null || !state.heroOrder.includes(state.lastHeroDeployed)) {
     state.lastHeroDeployed = null;
   }
@@ -161,6 +170,48 @@ export function normalizeGameState(state: GameState): GameState {
   }
   compactClearedFloors(state);
   return state;
+}
+
+function normalizeEquipmentOwnership(state: GameState): void {
+  const equipmentById = new Map(state.equipment.map((equipment) => [equipment.id, equipment]));
+  const holders = new Map<string, string[]>();
+  const changedHeroes = new Set<string>();
+  for (const heroId of HERO_ORDER) {
+    const hero = state.heroes[heroId];
+    for (const slot of ['weapon', 'armor', 'trinket'] as const) {
+      const id = hero[slot];
+      if (!id) continue;
+      const equipment = equipmentById.get(id);
+      if (!hero.owned || !equipment || equipment.slot !== slot) {
+        hero[slot] = null;
+        changedHeroes.add(heroId);
+      } else {
+        const owners = holders.get(id) ?? [];
+        owners.push(heroId);
+        holders.set(id, owners);
+      }
+    }
+  }
+  for (const equipment of state.equipment) {
+    const owners = holders.get(equipment.id) ?? [];
+    // 旧存档可能同时保留多名英雄的槽位；优先保留最后记录且实际穿戴的英雄。
+    const owner = owners.find((id) => id === equipment.equippedBy) ?? owners[0] ?? null;
+    equipment.equippedBy = owner;
+    for (const heroId of owners) {
+      if (heroId === owner) continue;
+      state.heroes[heroId][equipment.slot] = null;
+      changedHeroes.add(heroId);
+    }
+  }
+  for (const unit of state.units) {
+    if (unit.kind !== 'hero' || unit.phase === 'dead' || !changedHeroes.has(unit.templateId)) continue;
+    const ratio = unit.hp / unit.maxHp;
+    const stats = heroStatsOf(state, unit.templateId);
+    unit.maxHp = stats.hp;
+    unit.hp = Math.max(1, Math.round(stats.hp * ratio));
+    unit.attack = stats.atk;
+    unit.defense = stats.def;
+  }
 }
 
 // —— 属性派生 ——
@@ -191,6 +242,13 @@ function equipBonusesOf(state: GameState, hero: HeroState) {
     def += eq.defBonus;
   }
   return { atk, hp, def };
+}
+
+export function canAscendHero(state: GameState, heroId: string): boolean {
+  const hero = state.heroes[heroId];
+  if (!hero?.owned || hero.star >= BALANCE.heroMaxStar) return false;
+  const cost = BALANCE.starCosts[hero.star];
+  return cost !== undefined && (state.resources.soulShards[heroId] ?? 0) >= cost;
 }
 
 export function heroStatsOf(state: GameState, heroId: string): DerivedStats {

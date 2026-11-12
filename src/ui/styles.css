@@ -97,6 +97,25 @@ input:focus-visible,
   display: none;
 }
 
+.hero-drawer-toggle {
+  position: relative;
+}
+
+.hero-ascend-count {
+  position: absolute;
+  top: 0;
+  right: -4px;
+  min-width: 17px;
+  height: 17px;
+  padding-inline: 4px;
+  border-radius: 9px;
+  background: #f4cd7f;
+  color: #38270d;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 17px;
+}
+
 .res {
   display: flex;
   align-items: center;
@@ -184,6 +203,15 @@ input:focus-visible,
   border-color: var(--gold);
 }
 
+.hero-ascend-summary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  color: #f4cd7f;
+  font-size: 11px;
+}
+
 .hero-filter {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -227,6 +255,16 @@ input:focus-visible,
 
 .hero-card:hover {
   background: #2c4050;
+}
+
+.hero-card.ascendable {
+  border-color: #f4cd7f;
+  box-shadow: inset 3px 0 #f4cd7f;
+  background: linear-gradient(100deg, #443c2c, var(--panel) 75%);
+}
+
+.hero-card.ascendable:hover {
+  background: #444538;
 }
 
 .hero-avatar {
@@ -286,6 +324,18 @@ input:focus-visible,
   display: inline-flex;
   align-items: center;
   gap: 3px;
+}
+
+.hero-ascend-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px 4px;
+  border-radius: 4px;
+  background: #f4cd7f;
+  color: #38270d;
+  font-weight: 700;
+  line-height: 1.25;
 }
 
 .hero-role {
@@ -412,13 +462,20 @@ input:focus-visible,
 }
 
 /* 底部技能栏 */
+.skill-dock {
+  position: relative;
+  flex: none;
+  z-index: 30;
+  background: #1a2834;
+  border-top: 1px solid var(--panel-border);
+}
+
 .skill-bar {
   display: flex;
   align-items: center;
   gap: 8px;
   padding: 6px 10px;
   background: linear-gradient(180deg, #233443, #1a2834);
-  border-top: 1px solid var(--panel-border);
   z-index: 30;
   flex-wrap: wrap;
   min-height: 52px;
@@ -449,6 +506,10 @@ input:focus-visible,
 
 .skill-crystalRain {
   --skill-color: #9ccaf8;
+}
+
+.skill-rapidAdvance {
+  --skill-color: #89e8ee;
 }
 
 .skill-btn.is-ready {
@@ -493,23 +554,17 @@ input:focus-visible,
   min-width: 0;
 }
 
-.skill-target {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  font-size: 12px;
-  color: var(--muted);
-}
-
-.skill-target > .ui-icon {
-  color: var(--ice);
-  font-size: 22px;
-}
-
-.skill-target strong {
-  color: var(--text);
-  font-weight: 600;
+.skill-effect {
+  color: var(--skill-color);
+  font-size: 10px;
+  max-width: 100%;
+  white-space: normal;
   overflow-wrap: anywhere;
+}
+
+.skill-btn.is-active {
+  border-color: var(--skill-color);
+  box-shadow: inset 0 0 12px color-mix(in srgb, var(--skill-color) 15%, transparent);
 }
 
 .skill-floor-control {
@@ -842,6 +897,199 @@ input:focus-visible,
   font-size: 12px;
 }
 
+.equipment-hero-picker {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  background: var(--bg2);
+  font-size: 13px;
+}
+
+.equipment-hero-picker select {
+  flex: 1;
+  min-width: 120px;
+  min-height: 36px;
+  padding: 6px 8px;
+  border: 1px solid var(--panel-border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+}
+
+.equipment-help {
+  margin: 10px 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.equipment-section-title {
+  margin: 12px 0 8px;
+  font-size: 14px;
+}
+
+.equipment-slots {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.equipment-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 7px;
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  background: var(--bg2);
+  color: var(--text);
+  font: inherit;
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.equipment-slot[aria-pressed='true'] {
+  border-color: var(--gold);
+  background: #3b3b31;
+  box-shadow: inset 0 -3px var(--gold);
+}
+
+.equipment-slot .equipment-stats {
+  display: grid;
+  gap: 3px;
+  font-size: 11px;
+}
+
+.equipment-slot .equipment-stats .panel-label {
+  gap: 3px;
+}
+
+.equipment-slot .equipment-stats .ui-icon {
+  font-size: 13px;
+}
+
+.equipment-slot-count {
+  margin-top: auto;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.equipment-feedback {
+  margin: 10px 0;
+  color: var(--gem);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.equipment-feedback:empty {
+  margin: 0;
+}
+
+.equipment-inventory-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.equipment-inventory-heading > span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.equipment-inventory-heading + .equipment-help {
+  margin-top: 0;
+}
+
+.equipment-inventory {
+  display: grid;
+  gap: 8px;
+}
+
+.equipment-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  background: var(--bg2);
+}
+
+.equipment-item.is-equipped {
+  border-color: #3d796a;
+}
+
+.equipment-item-copy {
+  display: grid;
+  min-width: 0;
+  gap: 8px;
+}
+
+.equipment-item-heading,
+.equipment-comparison {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  font-size: 13px;
+}
+
+.equipment-owner {
+  padding: 2px 5px;
+  border-radius: 4px;
+  background: #304251;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.equipment-owner.is-current {
+  background: #24483f;
+  color: var(--gem);
+}
+
+.equipment-comparison {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.equipment-comparison .increase {
+  color: var(--gem);
+}
+
+.equipment-comparison .decrease {
+  color: #f39a8e;
+}
+
+.equipment-item > .btn {
+  flex: none;
+  min-height: 36px;
+}
+
+.equipment-empty {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 24px 16px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.equipment-empty > .ui-icon {
+  font-size: 32px;
+}
+
 .panel .close {
   position: absolute;
   top: 8px;
@@ -986,6 +1234,79 @@ input:focus-visible,
 
 .gem-slot img.gem-icon {
   transform: scale(1.25);
+}
+
+.gem-backpack {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 8px;
+  margin-bottom: 6px;
+  border-radius: 8px;
+}
+
+.gem-backpack:focus-visible {
+  outline: 2px solid var(--ice);
+  outline-offset: 2px;
+}
+
+.gem-backpack-item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  min-width: 0;
+  aspect-ratio: 1;
+  padding: 8px 4px;
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  background: #172633;
+  color: var(--text);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.gem-backpack-item:hover {
+  background: #293e4b;
+}
+
+.gem-backpack-item.selected {
+  border-color: var(--gold);
+  background: #3a382d;
+  box-shadow: inset 0 0 0 1px var(--gold);
+}
+
+.gem-backpack-item .gem-icon {
+  width: 30px;
+  height: 30px;
+  font-size: 27px;
+}
+
+.gem-backpack-level,
+.gem-backpack-hint,
+.gem-backpack-empty {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.gem-backpack-lock,
+.gem-backpack-check {
+  position: absolute;
+  top: 4px;
+  font-size: 12px;
+}
+
+.gem-backpack-lock { left: 4px; color: var(--muted); }
+.gem-backpack-check { right: 4px; color: var(--gold); }
+
+.gem-backpack-empty {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 20px;
+  border: 1px dashed var(--panel-border);
+  border-radius: 8px;
+  text-align: center;
 }
 
 .quest-row {
@@ -1170,13 +1491,22 @@ input:focus-visible,
 
   .skill-bar {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(12, minmax(0, 1fr));
     gap: 4px;
     padding: 4px 6px;
   }
 
+  .skill-bar > .skill-btn {
+    grid-column: span 3;
+  }
+
+  .skill-bar > :is(.skill-auto, .skill-floor-control, .squire-upgrade, .unlock-btn, .tower-frontier) {
+    grid-column: span 3;
+  }
+
   .skill-btn {
     --skill-size: 31px;
+    flex-direction: column;
     min-width: 0;
     justify-content: center;
     padding: 3px;
@@ -1184,14 +1514,11 @@ input:focus-visible,
     font-size: 11px;
   }
 
-  .skill-target {
-    justify-content: center;
-    gap: 4px;
-    font-size: 11px;
-  }
-
-  .skill-target > .ui-icon {
-    font-size: 19px;
+  .skill-btn .skill-copy {
+    justify-items: center;
+    gap: 3px;
+    max-width: 100%;
+    text-align: center;
   }
 
   .skill-bar :is(button, .skill-auto) {
@@ -1331,6 +1658,25 @@ input:focus-visible,
   .slot-grid {
     grid-template-columns: repeat(4, minmax(0, 56px));
   }
+
+  .equipment-slots {
+    gap: 5px;
+  }
+
+  .equipment-slot {
+    padding: 8px 6px;
+  }
+
+  .equipment-item {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px;
+  }
+
+  .equipment-item > .btn {
+    min-height: 40px;
+  }
 }
 
 @media (min-width: 550px) and (max-width: 720px) and (max-height: 540px),
@@ -1345,7 +1691,11 @@ input:focus-visible,
   }
 
   .skill-bar {
-    grid-template-columns: minmax(54px, 1fr) repeat(3, minmax(52px, 1fr)) 79px minmax(64px, 1fr) 66px 76px;
+    grid-template-columns: repeat(4, minmax(52px, 1fr)) 79px minmax(64px, 1fr) 66px 76px;
+  }
+
+  .skill-bar > :is(.skill-btn, .skill-auto, .skill-floor-control, .squire-upgrade, .unlock-btn, .tower-frontier) {
+    grid-column: auto;
   }
 
   .skill-floor-control > .ui-icon {
@@ -1369,14 +1719,7 @@ input:focus-visible,
     gap: 0 4px;
   }
 
-  .skill-target {
-    flex-direction: column;
-    gap: 2px;
-  }
-
-  .skill-target .skill-copy {
-    justify-items: center;
-  }
+  .skill-btn .skill-effect { flex-basis: 100%; }
 
   .nav-item {
     gap: 2px;

@@ -1,6 +1,6 @@
 // 游戏状态 Store —— 连接模拟内核、React 面板与 Phaser 渲染。
 // 状态不依赖 React 生命周期；React 订阅只读快照，命令改变状态。
-import type { GameMode, GameState } from '../game/core/types';
+import type { DomainEvent, GameMode, GameState } from '../game/core/types';
 import { Simulation, type CommandResult } from '../game/core/simulation';
 import { createNewGame, safeAdd } from '../game/core/state';
 import { saveGame, loadGame, saveCloudCache, loadCloudCache, validateImport } from './db';
@@ -35,6 +35,7 @@ export type CommandName =
 export interface UiSnapshot {
   version: number;
   state: GameState;
+  skillTargetFloor: number;
   canUnlock: { ok: boolean; missing: number[] };
   offlineEstimate: number;
   cloud: CloudAccount | null;
@@ -65,6 +66,7 @@ class GameStore {
   private _sim: Simulation | null = null;
   private cloud: CloudSession | null = null;
   private listeners = new Set<() => void>();
+  private eventListeners = new Set<(event: DomainEvent) => void>();
   private uiVersion = 0;
   private lastUiNotify = 0;
   private cachedSnapshot: UiSnapshot | null = null;
@@ -139,6 +141,11 @@ class GameStore {
     return () => this.listeners.delete(fn);
   };
 
+  subscribeEvents = (fn: (event: DomainEvent) => void): (() => void) => {
+    this.eventListeners.add(fn);
+    return () => this.eventListeners.delete(fn);
+  };
+
   private notify(force = false) {
     const now = performance.now();
     if (!force && now - this.lastUiNotify < UI_NOTIFY_MS) return;
@@ -155,6 +162,7 @@ class GameStore {
     this.cachedSnapshot = {
       version: this.uiVersion,
       state: s,
+      skillTargetFloor: this.sim.getActiveSkillTargetFloor(),
       canUnlock: this._sim ? this._sim.canUnlockNextSegment() : { ok: false, missing: [] },
       offlineEstimate: this._sim ? this._sim.offlineRateEstimate : 0,
       cloud: this.cloud && {
@@ -177,7 +185,7 @@ class GameStore {
       case 'setGoldFloor': result = this._sim.setGoldFloor(args[0] as number | null); break;
       case 'selectFloor': result = this._sim.selectFloor(args[0] as number); break;
       case 'unlockNextSegment': result = this._sim.unlockNextSegment(); break;
-      case 'useActiveSkill': result = this._sim.useActiveSkill(args[0] as never, args[1] as number); break;
+      case 'useActiveSkill': result = this._sim.useActiveSkill(args[0] as never); break;
       case 'recruit': result = this._sim.recruit(); break;
       case 'ascendHero': result = this._sim.ascendHero(args[0] as string); break;
       case 'buyRecruitTicket': result = this._sim.buyRecruitTicket(); break;
@@ -197,6 +205,7 @@ class GameStore {
     if (result.ok) {
       this._state!.revision++;
       this.playCommandSfx(cmd);
+      this.notifyEvents();
       this.save();
       this.notify(true);
     }
@@ -316,12 +325,13 @@ class GameStore {
   // 战斗事件音效（由渲染/事件层触发）
   notifyEvents() {
     if (!this._sim) return;
-    for (const ev of this._sim.events) {
+    const events = this._sim.events.splice(0);
+    for (const ev of events) {
+      for (const listener of this.eventListeners) listener(ev);
       if (ev.type === 'hit') this.audio.sfx('hit');
       else if (ev.type === 'enemy_killed') this.audio.sfx('hit');
       else if (ev.type === 'gate_cleared') this.audio.sfx('victory');
     }
-    this._sim.events.length = 0;
   }
 
   // 确认离线收益（只清除待展示标记，奖励已在 load 时入账）

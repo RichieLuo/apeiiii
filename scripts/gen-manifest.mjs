@@ -19,6 +19,9 @@ bosses.forEach((b) => add(b, `assets/sprites/bosses/${b}.png`, 'character'));
 add('bg_tower_ruins', 'assets/backgrounds/bg_tower_ruins.png', 'background');
 add('bg_tower_forge', 'assets/backgrounds/bg_tower_forge.png', 'background');
 add('bg_tower_frost', 'assets/backgrounds/bg_tower_frost.png', 'background');
+const newBackgrounds = ['grotto', 'tidal', 'tomb', 'clockwork', 'library', 'sanctuary', 'astral']
+  .map(name => `bg_tower_${name}`);
+newBackgrounds.forEach(id => add(id, `assets/backgrounds/${id}.png`, 'background'));
 // 建筑模块
 add('prop_platform', 'assets/props/prop_platform.png', 'prop');
 add('prop_door_ruins', 'assets/props/prop_door_ruins.png', 'prop');
@@ -55,6 +58,7 @@ const generated = new Set([
   'enemy_fire_lizard', 'enemy_ash_sprite', 'enemy_charred_guard', 'enemy_frost_wolf', 'enemy_snow_wisp', 'enemy_ice_sentinel', 'enemy_crystal_spider',
   'boss_gate_colossus', 'boss_furnace_golem', 'boss_prism_warden',
   'bg_tower_ruins', 'bg_tower_forge', 'bg_tower_frost',
+  ...newBackgrounds,
   'gem_attack', 'gem_health',
 ]);
 
@@ -65,9 +69,10 @@ const manifest = {
     id: d.id,
     path: d.path,
     kind: d.kind,
-    sourcePath: generated.has(d.id) ? `art/source/${d.id}.png` : null,
-    sourceSize: null,
-    frameSize: d.kind === 'character' && d.id.startsWith('boss') ? [512, 512] : d.kind === 'character' ? [256, 256] : [128, 128],
+    sourcePath: newBackgrounds.includes(d.id) ? `public/${d.path}` : generated.has(d.id) ? `art/source/${d.id}.png` : null,
+    sourceSize: newBackgrounds.includes(d.id) ? [1536, 1024] : null,
+    frameSize: newBackgrounds.includes(d.id) ? [1536, 1024]
+      : d.kind === 'character' && d.id.startsWith('boss') ? [512, 512] : d.kind === 'character' ? [256, 256] : [128, 128],
     displaySize: null,
     hasAlpha: d.kind !== 'background' && d.kind !== 'screen',
     pivot: d.kind === 'character' ? [0.5, 0.875] : [0.5, 0.5],
